@@ -309,6 +309,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1944554197}
   - component: {fileID: 1944554198}
+  - component: {fileID: 1944554199}
   m_Layer: 0
   m_Name: ChessBoard
   m_TagString: Untagged
@@ -344,3 +345,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   whiteTile: {fileID: 8770687979423776101, guid: 17fe1f36bb9c2e248982d8c92895a4d3, type: 3}
   brownTile: {fileID: 605100134138494013, guid: cbe3216caec2dac43bfe87e2eaabc6b0, type: 3}
+--- !u!114 &1944554199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1944554196}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a5e7f616a4669140acfe7cc7447c651, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoverMaterial: {fileID: 2100000, guid: 2ced181b7144f154fba174ad7be74248, type: 2}

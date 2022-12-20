@@ -6,6 +6,7 @@ public class BoarGenerator : MonoBehaviour
 {
     const int TILE_X_COUNT = 8;
     const int TILE_Y_COUNT = 8;
+    const string TILE_TAG = "Tile";
 
     public GameObject whiteTile;
     public GameObject brownTile;
@@ -54,6 +55,7 @@ public class BoarGenerator : MonoBehaviour
                 GameObject tile = Instantiate(currentTile, spawnPos, Quaternion.identity);
                 tile.transform.SetParent(transform, false);
                 tile.name = string.Format("X:{0},Y:{1}", x, y);
+                tile.tag = TILE_TAG;
             }
         }
 
