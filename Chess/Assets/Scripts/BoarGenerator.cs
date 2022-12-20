@@ -74,34 +74,34 @@ public class BoarGenerator : MonoBehaviour
     {
         chessPieces = new ChessPiece[TILE_X_COUNT, TILE_Y_COUNT];
 
-        int blackTeam = 1, whiteTeam = 0;
+        int whiteTeam = 0, blackTeam = 1; 
 
         //White Team
-        chessPieces[0, 7] = SpawnSinglePiece(ChessPieceType.Rook, whiteTeam);
-        chessPieces[1, 7] = SpawnSinglePiece(ChessPieceType.Knight, whiteTeam);
-        chessPieces[2, 7] = SpawnSinglePiece(ChessPieceType.Bishop, whiteTeam);
-        chessPieces[3, 7] = SpawnSinglePiece(ChessPieceType.Queen, whiteTeam);
-        chessPieces[4, 7] = SpawnSinglePiece(ChessPieceType.King, whiteTeam);
-        chessPieces[5, 7] = SpawnSinglePiece(ChessPieceType.Bishop, whiteTeam);
-        chessPieces[6, 7] = SpawnSinglePiece(ChessPieceType.Knight, whiteTeam);
-        chessPieces[7, 7] = SpawnSinglePiece(ChessPieceType.Rook, whiteTeam);
+        chessPieces[0, 0] = SpawnSinglePiece(ChessPieceType.Rook, whiteTeam);
+        chessPieces[1, 0] = SpawnSinglePiece(ChessPieceType.Knight, whiteTeam);
+        chessPieces[2, 0] = SpawnSinglePiece(ChessPieceType.Bishop, whiteTeam);
+        chessPieces[3, 0] = SpawnSinglePiece(ChessPieceType.Queen, whiteTeam);
+        chessPieces[4, 0] = SpawnSinglePiece(ChessPieceType.King, whiteTeam);
+        chessPieces[5, 0] = SpawnSinglePiece(ChessPieceType.Bishop, whiteTeam);
+        chessPieces[6, 0] = SpawnSinglePiece(ChessPieceType.Knight, whiteTeam);
+        chessPieces[7, 0] = SpawnSinglePiece(ChessPieceType.Rook, whiteTeam);
         for(int i=0; i < TILE_X_COUNT; i++)
         {
-            chessPieces[i, 6] = SpawnSinglePiece(ChessPieceType.Pawn, whiteTeam);
+            chessPieces[i, 1] = SpawnSinglePiece(ChessPieceType.Pawn, whiteTeam);
         }
 
         //Black Team
-        chessPieces[0, 0] = SpawnSinglePiece(ChessPieceType.Rook, blackTeam);
-        chessPieces[1, 0] = SpawnSinglePiece(ChessPieceType.Knight,blackTeam);
-        chessPieces[2, 0] = SpawnSinglePiece(ChessPieceType.Bishop, blackTeam);
-        chessPieces[3, 0] = SpawnSinglePiece(ChessPieceType.Queen, blackTeam);
-        chessPieces[4, 0] = SpawnSinglePiece(ChessPieceType.King, blackTeam);
-        chessPieces[5, 0] = SpawnSinglePiece(ChessPieceType.Bishop, blackTeam);
-        chessPieces[6, 0] = SpawnSinglePiece(ChessPieceType.Knight, blackTeam);
-        chessPieces[7, 0] = SpawnSinglePiece(ChessPieceType.Rook, blackTeam);
+        chessPieces[0, 7] = SpawnSinglePiece(ChessPieceType.Rook, blackTeam);
+        chessPieces[1, 7] = SpawnSinglePiece(ChessPieceType.Knight,blackTeam);
+        chessPieces[2, 7] = SpawnSinglePiece(ChessPieceType.Bishop, blackTeam);
+        chessPieces[3, 7] = SpawnSinglePiece(ChessPieceType.Queen, blackTeam);
+        chessPieces[4, 7] = SpawnSinglePiece(ChessPieceType.King, blackTeam);
+        chessPieces[5, 7] = SpawnSinglePiece(ChessPieceType.Bishop, blackTeam);
+        chessPieces[6, 7] = SpawnSinglePiece(ChessPieceType.Knight, blackTeam);
+        chessPieces[7, 7] = SpawnSinglePiece(ChessPieceType.Rook, blackTeam);
         for (int i = 0; i < TILE_X_COUNT; i++)
         {
-            chessPieces[i, 1] = SpawnSinglePiece(ChessPieceType.Pawn, blackTeam);
+            chessPieces[i, 6] = SpawnSinglePiece(ChessPieceType.Pawn, blackTeam);
         }
 
     }
@@ -112,6 +112,10 @@ public class BoarGenerator : MonoBehaviour
         cp.type = type;
         cp.team = team;
         cp.GetComponent<MeshRenderer>().material = colorMaterial[team];
+        if (team == 1)
+        {
+            cp.transform.rotation = Quaternion.Euler(new Vector3(0, 180, 0));
+        }
 
         return cp;
     }
@@ -121,6 +125,8 @@ public class BoarGenerator : MonoBehaviour
         if (chessPieces[x, y] != null)
         {
             chessPieces[x, y].transform.SetParent(parent.transform, false);
+            chessPieces[x, y].currentX = x;
+            chessPieces[x, y].currentY = y;
         }
 
     }

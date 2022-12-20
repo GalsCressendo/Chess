@@ -14,7 +14,7 @@ public enum ChessPieceType
 public class ChessPiece : MonoBehaviour
 {
     public ChessPieceType type;
-    public int team; //1 is black, 0 is white
+    public int team; //0 is white, 1 is black
     public int currentX;
     public int currentY;
 }
