@@ -345,6 +345,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   whiteTile: {fileID: 8770687979423776101, guid: 17fe1f36bb9c2e248982d8c92895a4d3, type: 3}
   brownTile: {fileID: 605100134138494013, guid: cbe3216caec2dac43bfe87e2eaabc6b0, type: 3}
+  chessPiecePrefabs:
+  - {fileID: 3348383806048987944, guid: fe00b2d248eba0f45b18d2e9f83ab7f0, type: 3}
+  - {fileID: 6645175670459268473, guid: 8328d323a5e882341865712bd7792dab, type: 3}
+  - {fileID: 6879459273214154541, guid: 645ce3c82d6022441950e98368070eaf, type: 3}
+  - {fileID: 6444399732287088338, guid: b9fe152284811844bbdf9e04f05895f4, type: 3}
+  - {fileID: 5580165305535458779, guid: fbbc1f01fd2ac1b44a10889cc02235a8, type: 3}
+  - {fileID: 5171024856741918750, guid: 5295fbc869f58f049b41f0d3aefd46fe, type: 3}
+  colorMaterial:
+  - {fileID: 2100000, guid: 61814567417bbde459600e51a7325812, type: 2}
+  - {fileID: 2100000, guid: e3d796d7c4936854baec55b8cef7c138, type: 2}
 --- !u!114 &1944554199
 MonoBehaviour:
   m_ObjectHideFlags: 0

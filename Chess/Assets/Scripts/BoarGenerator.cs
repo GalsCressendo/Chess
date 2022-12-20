@@ -8,11 +8,16 @@ public class BoarGenerator : MonoBehaviour
     const int TILE_Y_COUNT = 8;
     const string TILE_TAG = "Tile";
 
+    [Header("Board Components")]
     public GameObject whiteTile;
     public GameObject brownTile;
     private GameObject startTile;
     private GameObject currentTile;
     public GameObject[,] board = new GameObject[TILE_X_COUNT, TILE_Y_COUNT];
+
+    [Header("Pieces Components")]
+    [SerializeField] private GameObject[] chessPiecePrefabs;
+    [SerializeField] private Material[] colorMaterial;
 
     private void Awake()
     {
