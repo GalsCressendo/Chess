@@ -353,8 +353,8 @@ MonoBehaviour:
   - {fileID: 5580165305535458779, guid: fbbc1f01fd2ac1b44a10889cc02235a8, type: 3}
   - {fileID: 5171024856741918750, guid: 5295fbc869f58f049b41f0d3aefd46fe, type: 3}
   colorMaterial:
-  - {fileID: 2100000, guid: 61814567417bbde459600e51a7325812, type: 2}
   - {fileID: 2100000, guid: e3d796d7c4936854baec55b8cef7c138, type: 2}
+  - {fileID: 2100000, guid: 61814567417bbde459600e51a7325812, type: 2}
 --- !u!114 &1944554199
 MonoBehaviour:
   m_ObjectHideFlags: 0
