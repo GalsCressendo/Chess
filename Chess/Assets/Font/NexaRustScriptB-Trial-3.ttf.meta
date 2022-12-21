@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: d44cbbd46d227944284d2fda48a00f52
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - Nexa Rust Script B-Trial
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 34f24a9052bf8894892ce48c5bf16603, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
