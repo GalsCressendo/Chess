@@ -24,7 +24,7 @@ public class ChessPiece : MonoBehaviour
         return new List<Vector2Int>();
     }
 
-    public virtual BoardManager.SpecialMove GetSpecialMoves(ref ChessPiece[,] pieceMap, ref List<Vector2Int> availableMoves, ref List<Vector2Int[]> moveList)
+    public virtual BoardManager.SpecialMove GetSpecialMoves(ref ChessPiece[,] board, ref List<Vector2Int> availableMoves, ref List<Vector2Int[]> moveList)
     {
         return BoardManager.SpecialMove.None;
     }
