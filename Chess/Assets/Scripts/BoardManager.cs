@@ -57,6 +57,8 @@ public class BoardManager : MonoBehaviour
                 if (Input.GetMouseButtonDown(0))
                 {
 
+                    currentTile.GetComponent<MeshRenderer>().material = initialMaterial;
+
                     //if not holding a piece
                     if (currentPiece == null)
                     {
@@ -150,6 +152,11 @@ public class BoardManager : MonoBehaviour
                                 SetPiecePosition(currentTile.transform);
 
                             }
+                        }
+                        else if(currentTile.transform.position.x == currentPiece.GetComponent<ChessPiece>().currentX && currentTile.transform.position.z == currentPiece.GetComponent<ChessPiece>().currentY)
+                        {
+                            //Put back the piece
+                            SetPiecePosition(currentTile.transform);
                         }
                     }
 
