@@ -33,14 +33,14 @@ public class Pawn : ChessPiece
         }
 
         //Kill Move
-        if(currentX != tileCountX - 1)
+        if(currentX != tileCountX - 1) //if not on the most right side of the board
         {
             if(board[currentX + 1, currentY+direction]!=null && board[currentX + 1, currentY + direction].team != team)
             {
                 r.Add(new Vector2Int(currentX + 1, currentY + direction));
             }
         }
-        if (currentX != 0)
+        if (currentX != 0) //if not on the most left side of the board
         {
             if (board[currentX - 1, currentY + direction] != null && board[currentX - 1, currentY + direction].team != team)
             {
