@@ -142,6 +142,7 @@ public class BoardManager : MonoBehaviour
 
                                     //Set the new position of the current piece
                                     SetPiecePosition(currentTile.transform);
+                                    gameManager.CheckWinConditions(eatenPiece.GetComponent<ChessPiece>().type, eatenPiece.GetComponent<ChessPiece>().team);
 
                                 }
                                 else if (currentPiece.GetComponent<ChessPiece>().team == currentTile.transform.GetChild(0).GetComponent<ChessPiece>().team)
