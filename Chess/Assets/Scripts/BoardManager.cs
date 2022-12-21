@@ -106,53 +106,9 @@ public class BoardManager : MonoBehaviour
                                     if (currentPiece.GetComponent<ChessPiece>().team != currentTile.transform.GetChild(0).GetComponent<ChessPiece>().team)
                                     {
                                         GameObject eatenPiece = currentTile.transform.GetChild(0).gameObject;
-                                        eatenPiece.transform.SetParent(null, false);
-                                        eatenPiece.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
 
-                                        //if the eaten piece is white piece
-                                        if (eatenPiece.GetComponent<ChessPiece>().team == 0)
-                                        {
-
-                                            if (whiteDeadLastPos == Vector3.zero)
-                                            {
-                                                Vector3 position = new Vector3(-1, 0, 7);
-                                                eatenPiece.transform.position = position;
-                                                whiteDeadLastPos = position;
-                                            }
-                                            else
-                                            {
-                                                if (whiteDeadLastPos.x <= -4)
-                                                {
-                                                    whiteDeadLastPos.x = -1;
-                                                    whiteDeadLastPos.z -= 0.5f;
-                                                }
-                                                Vector3 position = new Vector3(whiteDeadLastPos.x - 0.5f, 0, whiteDeadLastPos.z);
-                                                eatenPiece.transform.position = position;
-                                                whiteDeadLastPos = position;
-                                            }
-                                        }
-                                        //if the eaten piece is black piece
-                                        else
-                                        {
-
-                                            if (blackDeadLastPos == Vector3.zero)
-                                            {
-                                                Vector3 position = new Vector3(8, 0, 0);
-                                                eatenPiece.transform.position = position;
-                                                blackDeadLastPos = position;
-                                            }
-                                            else
-                                            {
-                                                if (blackDeadLastPos.x >= 10)
-                                                {
-                                                    blackDeadLastPos.x = 8;
-                                                    blackDeadLastPos.z += 0.5f;
-                                                }
-                                                Vector3 position = new Vector3(blackDeadLastPos.x + 0.5f, 0, blackDeadLastPos.z);
-                                                eatenPiece.transform.position = position;
-                                                blackDeadLastPos = position;
-                                            }
-                                        }
+                                        //Add the piece to the graveyard
+                                        AddPieceToGraveyard(eatenPiece);
 
                                         //Set the new position of the current piece
                                         SetPiecePosition(currentTile.transform);
@@ -186,6 +142,59 @@ public class BoardManager : MonoBehaviour
             }
         }
 
+    }
+
+    private void AddPieceToGraveyard(GameObject eatenPiece)
+    {
+        eatenPiece.transform.SetParent(null, false);
+        eatenPiece.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
+
+        //if the eaten piece is white piece
+        if (eatenPiece.GetComponent<ChessPiece>().team == 0)
+        {
+
+            if (whiteDeadLastPos == Vector3.zero)
+            {
+                Vector3 position = new Vector3(-1, 0, 7);
+                eatenPiece.transform.position = position;
+                whiteDeadLastPos = position;
+            }
+            else
+            {
+                if (whiteDeadLastPos.x <= -4)
+                {
+                    whiteDeadLastPos.x = -1;
+                    whiteDeadLastPos.z -= 0.5f;
+                }
+                Vector3 position = new Vector3(whiteDeadLastPos.x - 0.5f, 0, whiteDeadLastPos.z);
+                eatenPiece.transform.position = position;
+                whiteDeadLastPos = position;
+            }
+        }
+        //if the eaten piece is black piece
+        else
+        {
+
+            if (blackDeadLastPos == Vector3.zero)
+            {
+                Vector3 position = new Vector3(8, 0, 0);
+                eatenPiece.transform.position = position;
+                blackDeadLastPos = position;
+            }
+            else
+            {
+                if (blackDeadLastPos.x >= 10)
+                {
+                    blackDeadLastPos.x = 8;
+                    blackDeadLastPos.z += 0.5f;
+                }
+                Vector3 position = new Vector3(blackDeadLastPos.x + 0.5f, 0, blackDeadLastPos.z);
+                eatenPiece.transform.position = position;
+                blackDeadLastPos = position;
+            }
+        }
+
+        pieceMap[eatenPiece.transform.GetComponent<ChessPiece>().currentX, eatenPiece.transform.GetComponent<ChessPiece>().currentY] = null;
     }
 
     private void SetPiecePosition(Transform tile)
@@ -249,8 +258,25 @@ public class BoardManager : MonoBehaviour
     {
         if(specialMove == SpecialMove.EnPassant)
         {
+            var newMove = moveList[moveList.Count - 1]; //To check if we actually do the en passant
+            ChessPiece myPawn = pieceMap[newMove[1].x, newMove[1].y];
 
+            var targetPawnPosition = moveList[moveList.Count - 2];
+            ChessPiece enemyPawn = pieceMap[targetPawnPosition[1].x, targetPawnPosition[1].y];
+
+            //the pawns need to be in the same x position since we jump over it
+            if(myPawn.currentX == enemyPawn.currentX)
+            {
+                //check if my pawn is diagonal to enemy pawn
+                if(myPawn.currentY == enemyPawn.currentY -1 || myPawn.currentY == enemyPawn.currentY + 1)
+                {
+                    //the enemy piece is valid and add it to the graveyard
+                    AddPieceToGraveyard(enemyPawn.transform.gameObject);
+                }
+            }
         }
     }
+
+   
 
 }
