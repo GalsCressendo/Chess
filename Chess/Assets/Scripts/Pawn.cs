@@ -16,6 +16,38 @@ public class Pawn : ChessPiece
             r.Add(new Vector2Int(currentX, currentY + direction));
         }
 
+        //Two in front (in initial position)
+        if(board[currentX,currentY + direction] == null)
+        {
+            //Team white direction
+            if(team == 0 && currentY ==1 && board[currentX, currentY + (direction *2)] == null)
+            {
+                r.Add(new Vector2Int(currentX, currentY + (direction * 2)));
+            }
+
+            //Team black direction
+            if (team == 0 && currentY == 6 && board[currentX, currentY + (direction * 2)] == null)
+            {
+                r.Add(new Vector2Int(currentX, currentY + (direction * 2)));
+            }
+        }
+
+        //Kill Move
+        if(currentX != tileCountX - 1)
+        {
+            if(board[currentX + 1, currentY+direction]!=null && board[currentX + 1, currentY + direction].team != team)
+            {
+                r.Add(new Vector2Int(currentX + 1, currentY + direction));
+            }
+        }
+        if (currentX != 0)
+        {
+            if (board[currentX - 1, currentY + direction] != null && board[currentX - 1, currentY + direction].team != team)
+            {
+                r.Add(new Vector2Int(currentX - 1, currentY + direction));
+            }
+        }
+
         return r;
     }
 }
