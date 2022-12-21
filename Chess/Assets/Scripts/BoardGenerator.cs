@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BoarGenerator : MonoBehaviour
+public class BoardGenerator : MonoBehaviour
 {
     const int TILE_X_COUNT = 8;
     const int TILE_Y_COUNT = 8;
@@ -18,7 +18,7 @@ public class BoarGenerator : MonoBehaviour
     [Header("Pieces Components")]
     [SerializeField] private GameObject[] chessPiecePrefabs;
     [SerializeField] private Material[] colorMaterial;
-    private ChessPiece[,] chessPieces;
+    public ChessPiece[,] chessPieces;
 
     private void Awake()
     {

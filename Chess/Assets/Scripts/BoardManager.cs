@@ -7,11 +7,17 @@ public class BoardManager : MonoBehaviour
     public Material hoverMaterial;
     GameObject currentTile;
     Material initialMaterial;
+    ChessPiece[,] pieceMap;
 
     //piece movement
     private GameObject currentPiece;
     private Vector3 whiteDeadLastPos = Vector3.zero;
     private Vector3 blackDeadLastPos = Vector3.zero;
+
+    private void Start()
+    {
+        pieceMap = FindObjectOfType<BoardGenerator>().chessPieces;
+    }
 
     private void Update()
     {
@@ -105,12 +111,8 @@ public class BoardManager : MonoBehaviour
                                     }
                                 }
 
-                                currentPiece.transform.SetParent(currentTile.transform, false);
-                                currentPiece.GetComponent<ChessPiece>().currentX = (int)currentTile.transform.position.x;
-                                currentPiece.GetComponent<ChessPiece>().currentY = (int)currentTile.transform.position.z;
-                                currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y - 1, currentPiece.transform.position.z);
-
-                                currentPiece = null;
+                                //Set the new position of the current piece
+                                SetPiecePosition(currentTile.transform);
 
                             }
                             else if(currentPiece.GetComponent<ChessPiece>().team == currentTile.transform.GetChild(0).GetComponent<ChessPiece>().team)
@@ -122,10 +124,9 @@ public class BoardManager : MonoBehaviour
                         }
                         else
                         {
-                            currentPiece.transform.SetParent(currentTile.transform, false);
-                            currentPiece.GetComponent<ChessPiece>().currentX = (int)currentTile.transform.position.x;
-                            currentPiece.GetComponent<ChessPiece>().currentY = (int)currentTile.transform.position.z;
-                            currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y - 1, currentPiece.transform.position.z);
+
+                            //Set the new position of the current piece
+                            SetPiecePosition(currentTile.transform);
 
                             currentPiece = null;
                         }
@@ -135,6 +136,21 @@ public class BoardManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void SetPiecePosition(Transform tile)
+    {
+        currentPiece.transform.SetParent(tile, false);
+        pieceMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY] = null;
+
+        currentPiece.GetComponent<ChessPiece>().currentX = (int)tile.transform.position.x;
+        currentPiece.GetComponent<ChessPiece>().currentY = (int)tile.transform.position.z;
+
+        pieceMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY] = currentPiece.GetComponent<ChessPiece>();
+        currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y - 1, currentPiece.transform.position.z);
+
+
+        currentPiece = null;
     }
 
 
