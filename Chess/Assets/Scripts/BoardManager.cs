@@ -275,6 +275,63 @@ public class BoardManager : MonoBehaviour
                 }
             }
         }
+
+        if(specialMove == SpecialMove.Castling)
+        {
+            var lastMove = moveList[moveList.Count - 1];
+            //Left rook
+            if(lastMove[1].x == 2)
+            {
+                //if we are on the white side
+                if (lastMove[1].y == 0)
+                {
+                    var rook = pieceMap[0, 0];
+                    pieceMap[3, 0] = rook;
+                    pieceMap[0, 0] = null;
+                    if (currentPiece.transform.GetComponent<King>() != null)
+                    {
+                        currentPiece.transform.GetComponent<King>().SetRookPosAfterCastling(tileMap[3, 0].transform, rook.transform);
+                    }
+                }
+                //if we are on the black side
+                else if (lastMove[1].y == 7)
+                {
+                    var rook = pieceMap[0, 7];
+                    pieceMap[3, 7] = rook;
+                    pieceMap[0, 7] = null;
+                    if (currentPiece.transform.GetComponent<King>() != null)
+                    {
+                        currentPiece.transform.GetComponent<King>().SetRookPosAfterCastling(tileMap[3, 7].transform, rook.transform);
+                    }
+                }
+            }
+            //Right rook
+            else if (lastMove[1].x == 6)
+            {
+                //if we are on the white side
+                if (lastMove[1].y == 0)
+                {
+                    var rook = pieceMap[7, 0];
+                    pieceMap[5, 0] = rook;
+                    pieceMap[7, 0] = null;
+                    if (currentPiece.transform.GetComponent<King>() != null)
+                    {
+                        currentPiece.transform.GetComponent<King>().SetRookPosAfterCastling(tileMap[5, 0].transform, rook.transform);
+                    }
+                }
+                //if we are on the black side
+                else if (lastMove[1].y == 7)
+                {
+                    var rook = pieceMap[7, 7];
+                    pieceMap[5, 7] = rook;
+                    pieceMap[7, 7] = null;
+                    if (currentPiece.transform.GetComponent<King>() != null)
+                    {
+                        currentPiece.transform.GetComponent<King>().SetRookPosAfterCastling(tileMap[5, 7].transform, rook.transform);
+                    }
+                }
+            }
+        }
     }
 
    

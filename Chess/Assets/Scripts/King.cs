@@ -161,15 +161,16 @@ public class King : ChessPiece
                     }
                 }
             }
+
             //Black Team
-            if (team == 0)
+            if (team == 1)
             {
                 //Left Rook
                 if (leftRook == null) //if left rook haven't move, then proceed
                 {
                     if (board[0, 7].type == ChessPieceType.Rook)
                     {
-                        if (board[0, 7].team == 0)
+                        if (board[0, 7].team == 1)
                         {
                             //if the tiles leftside of the king are empty
                             if (board[1, 7] == null && board[2, 7] == null && board[3, 7] == null)
@@ -186,7 +187,7 @@ public class King : ChessPiece
                 {
                     if (board[7, 7].type == ChessPieceType.Rook)
                     {
-                        if (board[7, 7].team == 0)
+                        if (board[7, 7].team == 1)
                         {
                             //if the tiles leftside of the king are empty
                             if (board[5, 7] == null && board[6, 7] == null)
@@ -202,5 +203,10 @@ public class King : ChessPiece
         } 
 
         return r;
+    }
+
+    public void SetRookPosAfterCastling(Transform tileTransform, Transform rook)
+    {
+        rook.transform.SetParent(tileTransform, false);
     }
 }
