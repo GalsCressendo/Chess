@@ -63,6 +63,7 @@ public class BoardGenerator : MonoBehaviour
                 tile.transform.SetParent(transform, false);
                 tile.name = string.Format("X:{0},Y:{1}", x, y);
                 tile.tag = TILE_TAG;
+                board[x, y] = tile;
 
                 RepositionChessPiece(x, y, tile);
             }

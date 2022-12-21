@@ -1,22 +1,34 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BoardManager : MonoBehaviour
 {
+    const int TILE_X_COUNT = 8;
+    const int TILE_Y_COUNT = 8;
     const string TILE_TAG = "Tile";
 
+    public GameObject[,] tileMap;
+
+    //hovering
     public Material hoverMaterial;
     GameObject currentTile;
     Material initialMaterial;
-    ChessPiece[,] pieceMap;
 
     //piece movement
+    ChessPiece[,] pieceMap;
     private GameObject currentPiece;
     private Vector3 whiteDeadLastPos = Vector3.zero;
     private Vector3 blackDeadLastPos = Vector3.zero;
+    private List<Vector2Int> currentMoves;
+
+    //highlighting
+    public Material highlightMaterial;
+    Material[,] highlight_initialMaterial;
 
     private void Start()
     {
         pieceMap = FindObjectOfType<BoardGenerator>().chessPieces;
+        tileMap = FindObjectOfType<BoardGenerator>().board;
     }
 
     private void Update()
@@ -52,6 +64,11 @@ public class BoardManager : MonoBehaviour
                         {
                             currentPiece = currentTile.transform.GetChild(0).gameObject;
                             currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y + 1, currentPiece.transform.position.z);
+
+                            highlight_initialMaterial = new Material[TILE_X_COUNT, TILE_Y_COUNT];
+                            currentMoves =  currentPiece.GetComponent<ChessPiece>().GetAvailableMoves(ref pieceMap, TILE_X_COUNT, TILE_Y_COUNT);
+                            highlight_initialMaterial = GetHighlightInitialMaterial(currentMoves);
+                            HighlightMoveTile(currentMoves);
                         }
                     }
                     //if holding a piece
@@ -118,6 +135,8 @@ public class BoardManager : MonoBehaviour
                             else if(currentPiece.GetComponent<ChessPiece>().team == currentTile.transform.GetChild(0).GetComponent<ChessPiece>().team)
                             {
                                 currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y - 1, currentPiece.transform.position.z);
+                                ResetTileAfterHighlight();
+                                //initialMaterial = tileMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY].GetComponent<MeshRenderer>().material;
                                 currentPiece = null;
                             }
 
@@ -128,7 +147,6 @@ public class BoardManager : MonoBehaviour
                             //Set the new position of the current piece
                             SetPiecePosition(currentTile.transform);
 
-                            currentPiece = null;
                         }
 
                     }
@@ -149,8 +167,37 @@ public class BoardManager : MonoBehaviour
         pieceMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY] = currentPiece.GetComponent<ChessPiece>();
         currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y - 1, currentPiece.transform.position.z);
 
+        ResetTileAfterHighlight();
+        initialMaterial = tileMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY].GetComponent<MeshRenderer>().material;
 
         currentPiece = null;
+    }
+
+    private Material[,] GetHighlightInitialMaterial (List<Vector2Int> tilesPosition)
+    {
+        Material[,] initials = new Material[TILE_X_COUNT, TILE_Y_COUNT];
+        foreach(Vector2Int pos in tilesPosition)
+        {
+            initials[pos.x, pos.y] = tileMap[pos.x, pos.y].GetComponent<MeshRenderer>().material;
+        }
+
+        return initials;
+    }
+
+    private void HighlightMoveTile(List<Vector2Int> tilesPosition)
+    {
+        foreach(Vector2Int pos in tilesPosition)
+        {
+            tileMap[pos.x, pos.y].GetComponent<MeshRenderer>().material = highlightMaterial;
+        }
+    }
+
+    private void ResetTileAfterHighlight()
+    {
+        foreach(Vector2Int pos in currentMoves)
+        {
+            tileMap[pos.x, pos.y].GetComponent<MeshRenderer>().material = highlight_initialMaterial[pos.x, pos.y];
+        }
     }
 
 

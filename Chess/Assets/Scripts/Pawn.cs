@@ -6,6 +6,16 @@ public class Pawn : ChessPiece
 {
     public override List<Vector2Int> GetAvailableMoves(ref ChessPiece[,] board, int tileCountX, int tileCountY)
     {
-        return base.GetAvailableMoves(ref board, tileCountX, tileCountY);
+        List<Vector2Int> r = new List<Vector2Int>();
+
+        int direction = (team == 0) ? 1 : -1; //up if white, down if black
+
+        //One in front
+        if(board[currentX,currentY + direction] == null)
+        {
+            r.Add(new Vector2Int(currentX, currentY + direction));
+        }
+
+        return r;
     }
 }
