@@ -1,0 +1,23 @@
+fileFormatVersion: 2
+guid: 2e5b2a7e2b1d68c4693b6541562afadd
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - Nexa Rust Slab-Trial
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 72524774b58d65c48a8fbd4f55fd8540, type: 3}
+  - {fileID: 12800000, guid: 6d24911539f86e54195b1fc20f8fafea, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

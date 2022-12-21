@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
     }
 
     public TurnState turnState = TurnState.WhiteTurn;
+    [SerializeField]private WinnerPanel winnerPanel;
 
     public void SwitchTurn()
     {
@@ -35,14 +36,7 @@ public class GameManager : MonoBehaviour
 
     private void CheckMate(int team)
     {
-        if (team == 0)
-        {
-            Debug.Log("Black team win");
-        }
-        else
-        {
-            Debug.Log("White team win");
-        }
-
+        winnerPanel.transform.gameObject.SetActive(true);
+        winnerPanel.SetWinnerText(team);
     }
 }
