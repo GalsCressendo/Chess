@@ -19,19 +19,22 @@ public class PromotionPanel : MonoBehaviour
     List<GameObject> spawnedButtons = new List<GameObject>();
 
     [SerializeField] GameManager gameManager;
+    public BoardManager boardManager;
 
     public void SpawnChessPiecePromotionButtons(List<GameObject> promotionPieces, int team)
     {
         foreach(GameObject piece in promotionPieces)
         {
-            Debug.Log(piece.GetComponent<ChessPiece>().type);
             if (!spawnType.Contains(piece.GetComponent<ChessPiece>().type))
             {
                 var button = (from b in chessPieceButtons
                               where (b.type == piece.GetComponent<ChessPiece>().type && b.team == team)
-                              select b.buttonPrefab).First();
+                              select b).First();
 
-                spawnedButtons.Add(Instantiate(button, transform));
+                GameObject spawn = Instantiate(button.buttonPrefab, transform);
+                spawn.GetComponent<PromotionButtonAttribute>().SetAttribute(button, boardManager, this);
+                spawnedButtons.Add(spawn);
+                
                 spawnType.Add(piece.GetComponent<ChessPiece>().type);
             }
         }

@@ -1771,6 +1771,7 @@ MonoBehaviour:
     team: 1
     buttonPrefab: {fileID: 6858821739397187670, guid: 6aa668b0ca373ce479e9cd57a9030b6a, type: 3}
   gameManager: {fileID: 104680642}
+  boardManager: {fileID: 1944554199}
 --- !u!1 &1944554196
 GameObject:
   m_ObjectHideFlags: 0

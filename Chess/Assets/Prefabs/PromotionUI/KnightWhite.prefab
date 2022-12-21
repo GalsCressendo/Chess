@@ -221,6 +221,7 @@ GameObject:
   - component: {fileID: 48083060462584018}
   - component: {fileID: 48083060462584019}
   - component: {fileID: 48083060462584017}
+  - component: {fileID: -6297546307016337634}
   m_Layer: 5
   m_Name: KnightWhite
   m_TagString: Untagged
@@ -331,3 +332,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &-6297546307016337634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 48083060462584021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2a103d78c02b7745a2098992bff9596, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  chessPieceButtons: []
+  gameManager: {fileID: 0}
+  boardManager: {fileID: 0}

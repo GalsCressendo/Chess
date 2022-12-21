@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum ChessPieceType
 {
@@ -28,4 +29,5 @@ public class ChessPiece : MonoBehaviour
     {
         return BoardManager.SpecialMove.None;
     }
+
 }

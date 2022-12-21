@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class BoardManager : MonoBehaviour
 {
@@ -43,6 +44,8 @@ public class BoardManager : MonoBehaviour
     private List<GameObject> whitePromotion = new List<GameObject>();
     private List<GameObject> blackPromotion = new List<GameObject>();
     [SerializeField] private PromotionPanel promotionPanel;
+    private GameObject promotionPawn;
+    private int promotionTeam = -1;
 
     private void Start()
     {
@@ -298,16 +301,23 @@ public class BoardManager : MonoBehaviour
                 if(targetPawn.team == 0 && lastMove[1].y == 7)
                 {
                     GetPromotionChessPieces(0);
-                    Debug.Log(whitePromotion.Count);
+                    promotionPawn = targetPawn.transform.gameObject;
+                    promotionTeam = 0;
                     promotionPanel.SpawnChessPiecePromotionButtons(whitePromotion, 0);
+
+
                 }
                 //if the target pawn is black pawn and lastmove is on the other side
                 else if (targetPawn.team == 1 && lastMove[1].y == 0)
                 {
                     GetPromotionChessPieces(1);
-                    Debug.Log(blackPromotion.Count);
+                    promotionPawn = targetPawn.transform.gameObject;
+                    promotionTeam = 1;
                     promotionPanel.SpawnChessPiecePromotionButtons(blackPromotion,1);
+
                 }
+
+
             }
         }
 
@@ -391,6 +401,44 @@ public class BoardManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void SetPromotionType(ChessPieceType type)
+    {
+        SwapPiecePromotion(type, promotionPawn, promotionTeam);
+    }
+
+    public void SwapPiecePromotion(ChessPieceType type, GameObject pawn, int team)
+    {
+        GameObject swapGameObject = null;
+        if(team == 0)
+        {
+            var promotion = (from obj in whitePromotion
+                             where obj.GetComponent<ChessPiece>().type == type
+                             select obj).First();
+            swapGameObject = promotion;
+        }
+        else
+        {
+            var promotion = (from obj in blackPromotion
+                             where obj.GetComponent<ChessPiece>().type == type
+                             select obj).First();
+            swapGameObject = promotion;
+        }
+
+        if (swapGameObject != null)
+        {
+            tileMap[pawn.GetComponent<ChessPiece>().currentX, pawn.GetComponent<ChessPiece>().currentY] = swapGameObject;
+            Vector3 tmp = swapGameObject.transform.position;
+            swapGameObject.transform.position = pawn.transform.position;
+            pawn.transform.position = tmp;
+            swapGameObject.transform.GetComponent<ChessPiece>().currentX = (int)swapGameObject.transform.position.x;
+            swapGameObject.transform.GetComponent<ChessPiece>().currentY = (int)swapGameObject.transform.position.z;
+
+            promotionPawn = null;
+            promotionTeam = -1;
+        }
+
     }
 
    
