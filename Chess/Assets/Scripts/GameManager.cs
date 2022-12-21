@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    public bool gameIsActive;
+
     public enum TurnState
     {
         WhiteTurn = 0,
@@ -36,6 +38,7 @@ public class GameManager : MonoBehaviour
 
     private void CheckMate(int team)
     {
+        gameIsActive = false;
         winnerPanel.transform.gameObject.SetActive(true);
         winnerPanel.SetWinnerText(team);
     }

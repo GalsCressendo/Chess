@@ -26,7 +26,7 @@ public class Pawn : ChessPiece
             }
 
             //Team black direction
-            if (team == 0 && currentY == 6 && board[currentX, currentY + (direction * 2)] == null)
+            if (team == 1 && currentY == 6 && board[currentX, currentY + (direction * 2)] == null)
             {
                 r.Add(new Vector2Int(currentX, currentY + (direction * 2)));
             }
@@ -49,5 +49,45 @@ public class Pawn : ChessPiece
         }
 
         return r;
+    }
+
+    public override BoardManager.SpecialMove GetSpecialMoves(ref ChessPiece[,] board, ref List<Vector2Int> availableMoves, ref List<Vector2Int[]> moveList)
+    {
+        int direction = (team == 0) ? 1 : -1;
+
+        //En passant
+        //if there is already a move on the game
+        if (moveList.Count > 0)
+        {
+            var lastMove = moveList[moveList.Count - 1];
+            //if lastMove done by a pawn
+            if(board[lastMove[1].x, lastMove[1].y].type == ChessPieceType.Pawn)
+            {
+                if(Mathf.Abs(lastMove[0].y - lastMove[1].y) == 2) //if the moved pawn at least move 2 units
+                {
+                    if(board[lastMove[1].x, lastMove[1].y].team != team) //if the move was from the other team
+                    {
+                        if(lastMove[1].y == currentY) //if the opponet team pawn lands exactly to my right or my left
+                        {
+                            //left
+                            if(lastMove[1].x == currentX - 1)
+                            {
+                                availableMoves.Add(new Vector2Int(currentX - 1, currentY + direction));
+                                return BoardManager.SpecialMove.EnPassant;
+                            }
+
+                            //right
+                            if(lastMove[1].x == currentX + 1)
+                            {
+                                availableMoves.Add(new Vector2Int(currentX + 1, currentY + direction));
+                                return BoardManager.SpecialMove.EnPassant;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return BoardManager.SpecialMove.None;
     }
 }
