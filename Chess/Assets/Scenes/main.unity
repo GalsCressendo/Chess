@@ -166,6 +166,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 39e5c63a830179a4aab0f07f6df6793d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameIsActive: 1
   turnState: 0
   winnerPanel: {fileID: 634941403}
 --- !u!1 &375194039
