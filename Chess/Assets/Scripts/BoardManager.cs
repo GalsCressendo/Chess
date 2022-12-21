@@ -1,17 +1,35 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BoardManager : MonoBehaviour
 {
+    const int TILE_X_COUNT = 8;
+    const int TILE_Y_COUNT = 8;
     const string TILE_TAG = "Tile";
 
+    public GameObject[,] tileMap;
+
+    //hovering
     public Material hoverMaterial;
     GameObject currentTile;
     Material initialMaterial;
 
     //piece movement
+    ChessPiece[,] pieceMap;
     private GameObject currentPiece;
     private Vector3 whiteDeadLastPos = Vector3.zero;
     private Vector3 blackDeadLastPos = Vector3.zero;
+    private List<Vector2Int> currentMoves;
+
+    //highlighting
+    public Material highlightMaterial;
+    Material[,] highlight_initialMaterial;
+
+    private void Start()
+    {
+        pieceMap = FindObjectOfType<BoardGenerator>().chessPieces;
+        tileMap = FindObjectOfType<BoardGenerator>().board;
+    }
 
     private void Update()
     {
@@ -39,6 +57,8 @@ public class BoardManager : MonoBehaviour
                 if (Input.GetMouseButtonDown(0))
                 {
 
+                    currentTile.GetComponent<MeshRenderer>().material = initialMaterial;
+
                     //if not holding a piece
                     if (currentPiece == null)
                     {
@@ -46,94 +66,152 @@ public class BoardManager : MonoBehaviour
                         {
                             currentPiece = currentTile.transform.GetChild(0).gameObject;
                             currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y + 1, currentPiece.transform.position.z);
+
+                            highlight_initialMaterial = new Material[TILE_X_COUNT, TILE_Y_COUNT];
+                            currentMoves =  currentPiece.GetComponent<ChessPiece>().GetAvailableMoves(ref pieceMap, TILE_X_COUNT, TILE_Y_COUNT);
+                            highlight_initialMaterial = GetHighlightInitialMaterial(currentMoves);
+                            HighlightMoveTile(currentMoves);
                         }
                     }
                     //if holding a piece
                     else if (currentPiece != null)
                     {
-                        //if there is another piece in the tile
-                        if (currentTile.transform.childCount == 1)
+                        //if this tile is valid
+                        if(currentMoves.Contains(new Vector2Int((int)currentTile.transform.position.x, (int)currentTile.transform.position.z)))
                         {
-                            if (currentPiece.GetComponent<ChessPiece>().team != currentTile.transform.GetChild(0).GetComponent<ChessPiece>().team)
+                            //if there is another piece in the tile
+                            if (currentTile.transform.childCount == 1)
                             {
-                                GameObject eatenPiece = currentTile.transform.GetChild(0).gameObject;
-                                eatenPiece.transform.SetParent(null, false);
-                                eatenPiece.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
-
-                                //if the eaten piece is white piece
-                                if (eatenPiece.GetComponent<ChessPiece>().team == 0)
+                                if (currentPiece.GetComponent<ChessPiece>().team != currentTile.transform.GetChild(0).GetComponent<ChessPiece>().team)
                                 {
+                                    GameObject eatenPiece = currentTile.transform.GetChild(0).gameObject;
+                                    eatenPiece.transform.SetParent(null, false);
+                                    eatenPiece.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
 
-                                    if (whiteDeadLastPos == Vector3.zero)
+                                    //if the eaten piece is white piece
+                                    if (eatenPiece.GetComponent<ChessPiece>().team == 0)
                                     {
-                                        Vector3 position = new Vector3(-1, 0, 7);
-                                        eatenPiece.transform.position = position;
-                                        whiteDeadLastPos = position;
+
+                                        if (whiteDeadLastPos == Vector3.zero)
+                                        {
+                                            Vector3 position = new Vector3(-1, 0, 7);
+                                            eatenPiece.transform.position = position;
+                                            whiteDeadLastPos = position;
+                                        }
+                                        else
+                                        {
+                                            if (whiteDeadLastPos.x <= -4)
+                                            {
+                                                whiteDeadLastPos.x = -1;
+                                                whiteDeadLastPos.z -= 0.5f;
+                                            }
+                                            Vector3 position = new Vector3(whiteDeadLastPos.x - 0.5f, 0, whiteDeadLastPos.z);
+                                            eatenPiece.transform.position = position;
+                                            whiteDeadLastPos = position;
+                                        }
                                     }
+                                    //if the eaten piece is black piece
                                     else
                                     {
-                                        if (whiteDeadLastPos.x <= -4)
+
+                                        if (blackDeadLastPos == Vector3.zero)
                                         {
-                                            whiteDeadLastPos.x = -1;
-                                            whiteDeadLastPos.z -= 0.5f;
+                                            Vector3 position = new Vector3(8, 0, 0);
+                                            eatenPiece.transform.position = position;
+                                            blackDeadLastPos = position;
                                         }
-                                        Vector3 position = new Vector3(whiteDeadLastPos.x - 0.5f, 0, whiteDeadLastPos.z);
-                                        eatenPiece.transform.position = position;
-                                        whiteDeadLastPos = position;
+                                        else
+                                        {
+                                            if (blackDeadLastPos.x >= 10)
+                                            {
+                                                blackDeadLastPos.x = 8;
+                                                blackDeadLastPos.z += 0.5f;
+                                            }
+                                            Vector3 position = new Vector3(blackDeadLastPos.x + 0.5f, 0, blackDeadLastPos.z);
+                                            eatenPiece.transform.position = position;
+                                            blackDeadLastPos = position;
+                                        }
                                     }
+
+                                    //Set the new position of the current piece
+                                    SetPiecePosition(currentTile.transform);
+
                                 }
-                                //if the eaten piece is black piece
-                                else
+                                else if (currentPiece.GetComponent<ChessPiece>().team == currentTile.transform.GetChild(0).GetComponent<ChessPiece>().team)
                                 {
-
-                                    if (blackDeadLastPos == Vector3.zero)
-                                    {
-                                        Vector3 position = new Vector3(8, 0, 0);
-                                        eatenPiece.transform.position = position;
-                                        blackDeadLastPos = position;
-                                    }
-                                    else
-                                    {
-                                        if (blackDeadLastPos.x >= 10)
-                                        {
-                                            blackDeadLastPos.x = 8;
-                                            blackDeadLastPos.z += 0.5f;
-                                        }
-                                        Vector3 position = new Vector3(blackDeadLastPos.x + 0.5f, 0, blackDeadLastPos.z);
-                                        eatenPiece.transform.position = position;
-                                        blackDeadLastPos = position;
-                                    }
+                                    //Put back the piece;
+                                    ResetPiecePosition();
                                 }
 
-                                currentPiece.transform.SetParent(currentTile.transform, false);
-                                currentPiece.GetComponent<ChessPiece>().currentX = (int)currentTile.transform.position.x;
-                                currentPiece.GetComponent<ChessPiece>().currentY = (int)currentTile.transform.position.z;
-                                currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y - 1, currentPiece.transform.position.z);
-
-                                currentPiece = null;
-
                             }
-                            else if(currentPiece.GetComponent<ChessPiece>().team == currentTile.transform.GetChild(0).GetComponent<ChessPiece>().team)
+                            else
                             {
-                                currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y - 1, currentPiece.transform.position.z);
-                                currentPiece = null;
+
+                                //Set the new position of the current piece
+                                SetPiecePosition(currentTile.transform);
+
                             }
-
                         }
-                        else
+                        else //if clicked tile is not valid
                         {
-                            currentPiece.transform.SetParent(currentTile.transform, false);
-                            currentPiece.GetComponent<ChessPiece>().currentX = (int)currentTile.transform.position.x;
-                            currentPiece.GetComponent<ChessPiece>().currentY = (int)currentTile.transform.position.z;
-                            currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y - 1, currentPiece.transform.position.z);
-
-                            currentPiece = null;
+                            //Put back the piece
+                            ResetPiecePosition();
                         }
-
                     }
 
                 }
             }
+        }
+    }
+
+    private void SetPiecePosition(Transform tile)
+    {
+        currentPiece.transform.SetParent(tile, false);
+        pieceMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY] = null;
+
+        currentPiece.GetComponent<ChessPiece>().currentX = (int)tile.transform.position.x;
+        currentPiece.GetComponent<ChessPiece>().currentY = (int)tile.transform.position.z;
+
+        pieceMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY] = currentPiece.GetComponent<ChessPiece>();
+        currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y - 1, currentPiece.transform.position.z);
+
+        ResetTileAfterHighlight();
+        initialMaterial = tileMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY].GetComponent<MeshRenderer>().material;
+
+        currentPiece = null;
+    }
+
+    private void ResetPiecePosition()
+    {
+        currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y - 1, currentPiece.transform.position.z);
+        ResetTileAfterHighlight();
+        currentPiece = null;
+    }
+
+    private Material[,] GetHighlightInitialMaterial (List<Vector2Int> tilesPosition)
+    {
+        Material[,] initials = new Material[TILE_X_COUNT, TILE_Y_COUNT];
+        foreach(Vector2Int pos in tilesPosition)
+        {
+            initials[pos.x, pos.y] = tileMap[pos.x, pos.y].GetComponent<MeshRenderer>().material;
+        }
+
+        return initials;
+    }
+
+    private void HighlightMoveTile(List<Vector2Int> tilesPosition)
+    {
+        foreach(Vector2Int pos in tilesPosition)
+        {
+            tileMap[pos.x, pos.y].GetComponent<MeshRenderer>().material = highlightMaterial;
+        }
+    }
+
+    private void ResetTileAfterHighlight()
+    {
+        foreach(Vector2Int pos in currentMoves)
+        {
+            tileMap[pos.x, pos.y].GetComponent<MeshRenderer>().material = highlight_initialMaterial[pos.x, pos.y];
         }
     }
 

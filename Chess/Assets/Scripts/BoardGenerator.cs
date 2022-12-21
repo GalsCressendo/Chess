@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BoarGenerator : MonoBehaviour
+public class BoardGenerator : MonoBehaviour
 {
     const int TILE_X_COUNT = 8;
     const int TILE_Y_COUNT = 8;
@@ -18,7 +18,7 @@ public class BoarGenerator : MonoBehaviour
     [Header("Pieces Components")]
     [SerializeField] private GameObject[] chessPiecePrefabs;
     [SerializeField] private Material[] colorMaterial;
-    private ChessPiece[,] chessPieces;
+    public ChessPiece[,] chessPieces;
 
     private void Awake()
     {
@@ -63,6 +63,7 @@ public class BoarGenerator : MonoBehaviour
                 tile.transform.SetParent(transform, false);
                 tile.name = string.Format("X:{0},Y:{1}", x, y);
                 tile.tag = TILE_TAG;
+                board[x, y] = tile;
 
                 RepositionChessPiece(x, y, tile);
             }
@@ -85,7 +86,7 @@ public class BoarGenerator : MonoBehaviour
         chessPieces[5, 0] = SpawnSinglePiece(ChessPieceType.Bishop, whiteTeam);
         chessPieces[6, 0] = SpawnSinglePiece(ChessPieceType.Knight, whiteTeam);
         chessPieces[7, 0] = SpawnSinglePiece(ChessPieceType.Rook, whiteTeam);
-        for(int i=0; i < TILE_X_COUNT; i++)
+        for (int i = 0; i < TILE_X_COUNT; i++)
         {
             chessPieces[i, 1] = SpawnSinglePiece(ChessPieceType.Pawn, whiteTeam);
         }
