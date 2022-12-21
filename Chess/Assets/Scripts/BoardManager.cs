@@ -139,9 +139,8 @@ public class BoardManager : MonoBehaviour
                                 }
                                 else if (currentPiece.GetComponent<ChessPiece>().team == currentTile.transform.GetChild(0).GetComponent<ChessPiece>().team)
                                 {
-                                    currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y - 1, currentPiece.transform.position.z);
-                                    ResetTileAfterHighlight();
-                                    currentPiece = null;
+                                    //Put back the piece;
+                                    ResetPiecePosition();
                                 }
 
                             }
@@ -153,10 +152,10 @@ public class BoardManager : MonoBehaviour
 
                             }
                         }
-                        else if(currentTile.transform.position.x == currentPiece.GetComponent<ChessPiece>().currentX && currentTile.transform.position.z == currentPiece.GetComponent<ChessPiece>().currentY)
+                        else //if clicked tile is not valid
                         {
                             //Put back the piece
-                            SetPiecePosition(currentTile.transform);
+                            ResetPiecePosition();
                         }
                     }
 
@@ -179,6 +178,13 @@ public class BoardManager : MonoBehaviour
         ResetTileAfterHighlight();
         initialMaterial = tileMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY].GetComponent<MeshRenderer>().material;
 
+        currentPiece = null;
+    }
+
+    private void ResetPiecePosition()
+    {
+        currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y - 1, currentPiece.transform.position.z);
+        ResetTileAfterHighlight();
         currentPiece = null;
     }
 
