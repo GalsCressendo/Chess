@@ -8,6 +8,7 @@ public class BoardManager : MonoBehaviour
     const string TILE_TAG = "Tile";
 
     public GameObject[,] tileMap;
+    GameManager gameManager;
 
     //hovering
     public Material hoverMaterial;
@@ -29,6 +30,7 @@ public class BoardManager : MonoBehaviour
     {
         pieceMap = FindObjectOfType<BoardGenerator>().chessPieces;
         tileMap = FindObjectOfType<BoardGenerator>().board;
+        gameManager = FindObjectOfType<GameManager>();
     }
 
     private void Update()
@@ -64,13 +66,18 @@ public class BoardManager : MonoBehaviour
                     {
                         if (currentTile.transform.childCount == 1)
                         {
-                            currentPiece = currentTile.transform.GetChild(0).gameObject;
-                            currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y + 1, currentPiece.transform.position.z);
+                            if((gameManager.turnState == GameManager.TurnState.WhiteTurn && currentTile.transform.GetChild(0).GetComponent<ChessPiece>().team == 0) || 
+                                (gameManager.turnState == GameManager.TurnState.BlackTurn && currentTile.transform.GetChild(0).GetComponent<ChessPiece>().team == 1))
+                            {
+                                currentPiece = currentTile.transform.GetChild(0).gameObject;
+                                currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y + 1, currentPiece.transform.position.z);
 
-                            highlight_initialMaterial = new Material[TILE_X_COUNT, TILE_Y_COUNT];
-                            currentMoves =  currentPiece.GetComponent<ChessPiece>().GetAvailableMoves(ref pieceMap, TILE_X_COUNT, TILE_Y_COUNT);
-                            highlight_initialMaterial = GetHighlightInitialMaterial(currentMoves);
-                            HighlightMoveTile(currentMoves);
+                                highlight_initialMaterial = new Material[TILE_X_COUNT, TILE_Y_COUNT];
+                                currentMoves = currentPiece.GetComponent<ChessPiece>().GetAvailableMoves(ref pieceMap, TILE_X_COUNT, TILE_Y_COUNT);
+                                highlight_initialMaterial = GetHighlightInitialMaterial(currentMoves);
+                                HighlightMoveTile(currentMoves);
+                            }
+                            
                         }
                     }
                     //if holding a piece
@@ -177,6 +184,7 @@ public class BoardManager : MonoBehaviour
 
         ResetTileAfterHighlight();
         initialMaterial = tileMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY].GetComponent<MeshRenderer>().material;
+        gameManager.SwitchTurn();
 
         currentPiece = null;
     }
