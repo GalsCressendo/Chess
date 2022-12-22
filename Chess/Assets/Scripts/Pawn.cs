@@ -55,6 +55,13 @@ public class Pawn : ChessPiece
     {
         int direction = (team == 0) ? 1 : -1;
 
+        //Promotion
+        //check pawn team and the position of the pawn
+        if((team == 0 && currentY ==6) || (team == 1 && currentY == 1))
+        {
+            return BoardManager.SpecialMove.Promotion;
+        }
+
         //En passant
         //if there is already a move on the game
         if (moveList.Count > 0)

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class BoardManager : MonoBehaviour
 {
@@ -18,8 +19,6 @@ public class BoardManager : MonoBehaviour
     //piece movement
     ChessPiece[,] pieceMap;
     private GameObject currentPiece;
-    private Vector3 whiteDeadLastPos = Vector3.zero;
-    private Vector3 blackDeadLastPos = Vector3.zero;
     private List<Vector2Int> availableMoves;
     private List<Vector2Int[]> moveList = new List<Vector2Int[]>(); //To keep track of move record
 
@@ -36,6 +35,17 @@ public class BoardManager : MonoBehaviour
     //highlighting
     public Material highlightMaterial;
     Material[,] highlight_initialMaterial;
+
+    //promotion requirements
+    private Vector3 whiteDeadLastPos = Vector3.zero;
+    private Vector3 blackDeadLastPos = Vector3.zero;
+    private List<GameObject> whiteGraveyard = new List<GameObject>();
+    private List<GameObject> blackGraveyard = new List<GameObject>();
+    private List<GameObject> whitePromotion = new List<GameObject>();
+    private List<GameObject> blackPromotion = new List<GameObject>();
+    [SerializeField] private PromotionPanel promotionPanel;
+    private GameObject promotionPawn;
+    private int promotionTeam = -1;
 
     private void Start()
     {
@@ -170,11 +180,12 @@ public class BoardManager : MonoBehaviour
                 eatenPiece.transform.position = position;
                 whiteDeadLastPos = position;
             }
+
+            whiteGraveyard.Add(eatenPiece);
         }
         //if the eaten piece is black piece
         else
         {
-
             if (blackDeadLastPos == Vector3.zero)
             {
                 Vector3 position = new Vector3(8, 0, 0);
@@ -192,6 +203,8 @@ public class BoardManager : MonoBehaviour
                 eatenPiece.transform.position = position;
                 blackDeadLastPos = position;
             }
+
+            blackGraveyard.Add(eatenPiece);
         }
 
         pieceMap[eatenPiece.transform.GetComponent<ChessPiece>().currentX, eatenPiece.transform.GetComponent<ChessPiece>().currentY] = null;
@@ -276,6 +289,37 @@ public class BoardManager : MonoBehaviour
             }
         }
 
+        if(specialMove == SpecialMove.Promotion)
+        {
+            var lastMove = moveList[moveList.Count - 1];
+            var targetPawn = pieceMap[lastMove[1].x, lastMove[1].y];
+
+            if(targetPawn.type == ChessPieceType.Pawn)
+            {
+                //if the target pawn is white pawn and lastmove is on the other side
+                if(targetPawn.team == 0 && lastMove[1].y == 7)
+                {
+                    GetPromotionChessPieces(0);
+                    promotionPawn = targetPawn.transform.gameObject;
+                    promotionTeam = 0;
+                    promotionPanel.SpawnChessPiecePromotionButtons(whitePromotion, 0);
+
+
+                }
+                //if the target pawn is black pawn and lastmove is on the other side
+                else if (targetPawn.team == 1 && lastMove[1].y == 0)
+                {
+                    GetPromotionChessPieces(1);
+                    promotionPawn = targetPawn.transform.gameObject;
+                    promotionTeam = 1;
+                    promotionPanel.SpawnChessPiecePromotionButtons(blackPromotion,1);
+
+                }
+
+
+            }
+        }
+
         if(specialMove == SpecialMove.Castling)
         {
             var lastMove = moveList[moveList.Count - 1];
@@ -332,6 +376,79 @@ public class BoardManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void GetPromotionChessPieces(int team)
+    {
+        if(team == 0)
+        {
+            foreach(GameObject obj in whiteGraveyard)
+            {
+                if(obj.GetComponent<ChessPiece>().type != ChessPieceType.Pawn)
+                {
+                    whitePromotion.Add(obj);
+                }
+            }
+        }
+        else
+        {
+            foreach (GameObject obj in blackGraveyard)
+            {
+                if (obj.GetComponent<ChessPiece>().type != ChessPieceType.Pawn)
+                {
+                    blackPromotion.Add(obj);
+                }
+            }
+        }
+    }
+
+    public void SetPromotionType(ChessPieceType type)
+    {
+        SwapPiecePromotion(type, promotionPawn, promotionTeam);
+    }
+
+    public void SwapPiecePromotion(ChessPieceType type, GameObject pawn, int team)
+    {
+        GameObject swapGameObject = null;
+        if(team == 0)
+        {
+            var promotion = (from obj in whitePromotion
+                             where obj.GetComponent<ChessPiece>().type == type
+                             select obj).First();
+            swapGameObject = promotion;
+        }
+        else
+        {
+            var promotion = (from obj in blackPromotion
+                             where obj.GetComponent<ChessPiece>().type == type
+                             select obj).First();
+            swapGameObject = promotion;
+        }
+
+        if (swapGameObject != null)
+        {
+            var lastMove = moveList[moveList.Count - 1];
+
+            pieceMap[lastMove[1].x, lastMove[1].y] = swapGameObject.GetComponent<ChessPiece>();
+            var targetTile = tileMap[lastMove[1].x, lastMove[1].y];
+
+            pawn.transform.SetParent(null, false);
+            Vector3 tmp = swapGameObject.transform.position;
+            pawn.transform.position = tmp;
+            pawn.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
+
+            swapGameObject.transform.SetParent(targetTile.transform);
+            swapGameObject.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
+            swapGameObject.transform.localPosition= new Vector3(0, 0.5f, 0);
+
+
+            swapGameObject.transform.GetComponent<ChessPiece>().currentX = (int)swapGameObject.transform.position.x;
+            swapGameObject.transform.GetComponent<ChessPiece>().currentY = (int)swapGameObject.transform.position.z;
+
+            promotionPawn = null;
+            promotionTeam = -1;
+        }
+
     }
 
    
