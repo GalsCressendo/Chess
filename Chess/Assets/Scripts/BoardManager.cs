@@ -21,6 +21,8 @@ public class BoardManager : MonoBehaviour
     private GameObject currentPiece;
     private List<Vector2Int> availableMoves;
     private List<Vector2Int[]> moveList = new List<Vector2Int[]>(); //To keep track of move record
+    private Vector3 whiteDeadLastPos = Vector3.zero;
+    private Vector3 blackDeadLastPos = Vector3.zero;
 
     //special move
     public enum SpecialMove
@@ -37,15 +39,7 @@ public class BoardManager : MonoBehaviour
     Material[,] highlight_initialMaterial;
 
     //promotion requirements
-    private Vector3 whiteDeadLastPos = Vector3.zero;
-    private Vector3 blackDeadLastPos = Vector3.zero;
-    private List<GameObject> whiteGraveyard = new List<GameObject>();
-    private List<GameObject> blackGraveyard = new List<GameObject>();
-    private List<GameObject> whitePromotion = new List<GameObject>();
-    private List<GameObject> blackPromotion = new List<GameObject>();
-    [SerializeField] private PromotionPanel promotionPanel;
-    private GameObject promotionPawn;
-    private int promotionTeam = -1;
+    public PromotionPanel promotionPanel;
 
     private void Start()
     {
@@ -181,7 +175,6 @@ public class BoardManager : MonoBehaviour
                 whiteDeadLastPos = position;
             }
 
-            whiteGraveyard.Add(eatenPiece);
         }
         //if the eaten piece is black piece
         else
@@ -204,7 +197,6 @@ public class BoardManager : MonoBehaviour
                 blackDeadLastPos = position;
             }
 
-            blackGraveyard.Add(eatenPiece);
         }
 
         pieceMap[eatenPiece.transform.GetComponent<ChessPiece>().currentX, eatenPiece.transform.GetComponent<ChessPiece>().currentY] = null;
@@ -299,21 +291,12 @@ public class BoardManager : MonoBehaviour
                 //if the target pawn is white pawn and lastmove is on the other side
                 if(targetPawn.team == 0 && lastMove[1].y == 7)
                 {
-                    GetPromotionChessPieces(0);
-                    promotionPawn = targetPawn.transform.gameObject;
-                    promotionTeam = 0;
-                    promotionPanel.SpawnChessPiecePromotionButtons(whitePromotion, 0);
-
-
+                    promotionPanel.SpawnPiecesButtons(0);
                 }
                 //if the target pawn is black pawn and lastmove is on the other side
                 else if (targetPawn.team == 1 && lastMove[1].y == 0)
                 {
-                    GetPromotionChessPieces(1);
-                    promotionPawn = targetPawn.transform.gameObject;
-                    promotionTeam = 1;
-                    promotionPanel.SpawnChessPiecePromotionButtons(blackPromotion,1);
-
+                    promotionPanel.SpawnPiecesButtons(1);
                 }
 
 
@@ -376,79 +359,6 @@ public class BoardManager : MonoBehaviour
                 }
             }
         }
-    }
-
-    private void GetPromotionChessPieces(int team)
-    {
-        if(team == 0)
-        {
-            foreach(GameObject obj in whiteGraveyard)
-            {
-                if(obj.GetComponent<ChessPiece>().type != ChessPieceType.Pawn)
-                {
-                    whitePromotion.Add(obj);
-                }
-            }
-        }
-        else
-        {
-            foreach (GameObject obj in blackGraveyard)
-            {
-                if (obj.GetComponent<ChessPiece>().type != ChessPieceType.Pawn)
-                {
-                    blackPromotion.Add(obj);
-                }
-            }
-        }
-    }
-
-    public void SetPromotionType(ChessPieceType type)
-    {
-        SwapPiecePromotion(type, promotionPawn, promotionTeam);
-    }
-
-    public void SwapPiecePromotion(ChessPieceType type, GameObject pawn, int team)
-    {
-        GameObject swapGameObject = null;
-        if(team == 0)
-        {
-            var promotion = (from obj in whitePromotion
-                             where obj.GetComponent<ChessPiece>().type == type
-                             select obj).First();
-            swapGameObject = promotion;
-        }
-        else
-        {
-            var promotion = (from obj in blackPromotion
-                             where obj.GetComponent<ChessPiece>().type == type
-                             select obj).First();
-            swapGameObject = promotion;
-        }
-
-        if (swapGameObject != null)
-        {
-            var lastMove = moveList[moveList.Count - 1];
-
-            pieceMap[lastMove[1].x, lastMove[1].y] = swapGameObject.GetComponent<ChessPiece>();
-            var targetTile = tileMap[lastMove[1].x, lastMove[1].y];
-
-            pawn.transform.SetParent(null, false);
-            Vector3 tmp = swapGameObject.transform.position;
-            pawn.transform.position = tmp;
-            pawn.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
-
-            swapGameObject.transform.SetParent(targetTile.transform);
-            swapGameObject.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
-            swapGameObject.transform.localPosition= new Vector3(0, 0.5f, 0);
-
-
-            swapGameObject.transform.GetComponent<ChessPiece>().currentX = (int)swapGameObject.transform.position.x;
-            swapGameObject.transform.GetComponent<ChessPiece>().currentY = (int)swapGameObject.transform.position.z;
-
-            promotionPawn = null;
-            promotionTeam = -1;
-        }
-
     }
 
    

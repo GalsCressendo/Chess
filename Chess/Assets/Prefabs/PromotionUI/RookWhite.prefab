@@ -210,9 +210,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2a103d78c02b7745a2098992bff9596, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chessPieceButtons: []
-  gameManager: {fileID: 0}
-  boardManager: {fileID: 0}
+  type: 2
+  team: 0
 --- !u!1 &2895971294156081787
 GameObject:
   m_ObjectHideFlags: 0
