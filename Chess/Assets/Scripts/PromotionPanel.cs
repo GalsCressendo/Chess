@@ -6,49 +6,26 @@ using System.Linq;
 
 public class PromotionPanel : MonoBehaviour
 {
-    [Serializable]
-    public class ChessPieceButtons
+    public List<GameObject> buttons;
+    public GameManager gameManager;
+    public List<GameObject> spawnedButtons;
+
+    public void SpawnPiecesButtons(int team)
     {
-        public ChessPieceType type;
-        public int team;
-        public GameObject buttonPrefab;
-    }
+        gameManager.gameIsActive = false;
+        transform.parent.parent.gameObject.SetActive(true);
 
-    public List<ChessPieceButtons> chessPieceButtons;
-    List<ChessPieceType> spawnType = new List<ChessPieceType>();
-    List<GameObject> spawnedButtons = new List<GameObject>();
-
-    [SerializeField] GameManager gameManager;
-    public BoardManager boardManager;
-
-    public void SpawnChessPiecePromotionButtons(List<GameObject> promotionPieces, int team)
-    {
-        foreach(GameObject piece in promotionPieces)
+        foreach(GameObject obj in buttons)
         {
-            if (!spawnType.Contains(piece.GetComponent<ChessPiece>().type))
+            var b = obj.GetComponent<PromotionButtonAttribute>();
+            if(b.team == team)
             {
-                var button = (from b in chessPieceButtons
-                              where (b.type == piece.GetComponent<ChessPiece>().type && b.team == team)
-                              select b).First();
-
-                GameObject spawn = Instantiate(button.buttonPrefab, transform);
-                spawn.GetComponent<PromotionButtonAttribute>().SetAttribute(button, boardManager, this);
-                spawnedButtons.Add(spawn);
-                
-                spawnType.Add(piece.GetComponent<ChessPiece>().type);
+                spawnedButtons.Add(Instantiate(obj.transform.gameObject, transform));
             }
         }
-
-        if (spawnedButtons.Count > 0)
-        {
-            transform.parent.parent.gameObject.SetActive(true);
-            gameManager.gameIsActive = false;
-        }
-
-
     }
 
-    public void ClosePromotionPanel()
+    private void OnDisable()
     {
         foreach(GameObject obj in spawnedButtons)
         {
@@ -56,8 +33,5 @@ public class PromotionPanel : MonoBehaviour
         }
 
         spawnedButtons = new List<GameObject>();
-        spawnType = new List<ChessPieceType>();
-        gameManager.gameIsActive = true;
-        transform.parent.parent.gameObject.SetActive(false);
     }
 }
