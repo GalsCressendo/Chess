@@ -107,7 +107,7 @@ public class BoardGenerator : MonoBehaviour
 
     }
 
-    private ChessPiece SpawnSinglePiece(ChessPieceType type, int team)
+    public ChessPiece SpawnSinglePiece(ChessPieceType type, int team)
     {
         ChessPiece cp = Instantiate(chessPiecePrefabs[(int)type - 1], transform).GetComponent<ChessPiece>();
         cp.type = type;

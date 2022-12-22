@@ -361,6 +361,26 @@ public class BoardManager : MonoBehaviour
         }
     }
 
+    public void GetPromotionPiece(ChessPieceType type, int team)
+    {
+        var lastMove = moveList[moveList.Count - 1];
+
+        //Destroy the pawn
+        var pawn = pieceMap[lastMove[1].x, lastMove[1].y];
+        Destroy(pawn.transform.gameObject);
+
+        //Spawn the new piece
+        pieceMap[lastMove[1].x, lastMove[1].y] = transform.GetComponent<BoardGenerator>().SpawnSinglePiece(type, team);
+        //Set the piece to the last position
+        GameObject piece = pieceMap[lastMove[1].x, lastMove[1].y].transform.gameObject;
+        piece.transform.SetParent(tileMap[lastMove[1].x, lastMove[1].y].transform, false);
+        piece.GetComponent<ChessPiece>().currentX = lastMove[1].x;
+        piece.GetComponent<ChessPiece>().currentY = lastMove[1].y;
+
+        gameManager.gameIsActive = true;
+        promotionPanel.transform.parent.parent.gameObject.SetActive(false);
+    }
+
    
 
 }

@@ -1296,7 +1296,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000053406}
+  m_AnchoredPosition: {x: 0, y: 0.000061035156}
   m_SizeDelta: {x: 0, y: 277.502}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1210200462
@@ -1706,8 +1706,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.7037, y: 2.8147}
-  m_SizeDelta: {x: 458.8736, y: 260.4376}
+  m_AnchoredPosition: {x: 9.775, y: 7.351}
+  m_SizeDelta: {x: 888.272, y: 438.849}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1737743815
 MonoBehaviour:
@@ -1729,10 +1729,10 @@ MonoBehaviour:
   m_ChildAlignment: 4
   m_StartCorner: 0
   m_StartAxis: 1
-  m_CellSize: {x: 100, y: 100}
+  m_CellSize: {x: 200, y: 200}
   m_Spacing: {x: 10, y: 10}
   m_Constraint: 1
-  m_ConstraintCount: 3
+  m_ConstraintCount: 2
 --- !u!114 &1737743816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1746,14 +1746,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buttons:
-  - {fileID: 561816820762865525, guid: a45fc50e255d24544b8a4f4e963b8b9f, type: 3}
-  - {fileID: 5006928825486116731, guid: a947289ce6bc75943955f8ccf109076f, type: 3}
-  - {fileID: 5389120593999910254, guid: 0e5c782125fce634da355483fb7c5569, type: 3}
-  - {fileID: 48083060462584021, guid: 503aee1d2009eef48aa588f94094f9f0, type: 3}
-  - {fileID: 754346728070080601, guid: d9c2d75c346e1954ea2dabb9c6d55e47, type: 3}
-  - {fileID: 17417915545406663, guid: 630521c9476f77c4491dc175a3edd1cb, type: 3}
-  - {fileID: 6858821739397187670, guid: 6aa668b0ca373ce479e9cd57a9030b6a, type: 3}
-  - {fileID: 2895971294115699007, guid: 88087a607069b66408496f053de8ccbd, type: 3}
+  - {fileID: 3180792053835990081, guid: a45fc50e255d24544b8a4f4e963b8b9f, type: 3}
+  - {fileID: 8160999946162076532, guid: a947289ce6bc75943955f8ccf109076f, type: 3}
+  - {fileID: 625420037863222497, guid: 0e5c782125fce634da355483fb7c5569, type: 3}
+  - {fileID: 6408254045013882838, guid: 503aee1d2009eef48aa588f94094f9f0, type: 3}
+  - {fileID: 9085334675562327772, guid: d9c2d75c346e1954ea2dabb9c6d55e47, type: 3}
+  - {fileID: 4828162568976831826, guid: 630521c9476f77c4491dc175a3edd1cb, type: 3}
+  - {fileID: 6678980860859647733, guid: 6aa668b0ca373ce479e9cd57a9030b6a, type: 3}
+  - {fileID: 6801298529565571672, guid: 88087a607069b66408496f053de8ccbd, type: 3}
   gameManager: {fileID: 104680642}
 --- !u!1 &1944554196
 GameObject:

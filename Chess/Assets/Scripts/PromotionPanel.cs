@@ -8,6 +8,7 @@ public class PromotionPanel : MonoBehaviour
 {
     public List<GameObject> buttons;
     public GameManager gameManager;
+    public List<GameObject> spawnedButtons;
 
     public void SpawnPiecesButtons(int team)
     {
@@ -19,8 +20,18 @@ public class PromotionPanel : MonoBehaviour
             var b = obj.GetComponent<PromotionButtonAttribute>();
             if(b.team == team)
             {
-                Instantiate(obj.transform.gameObject, transform);
+                spawnedButtons.Add(Instantiate(obj.transform.gameObject, transform));
             }
         }
+    }
+
+    private void OnDisable()
+    {
+        foreach(GameObject obj in spawnedButtons)
+        {
+            Destroy(obj);
+        }
+
+        spawnedButtons = new List<GameObject>();
     }
 }
