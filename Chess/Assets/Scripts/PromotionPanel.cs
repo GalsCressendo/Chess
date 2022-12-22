@@ -39,7 +39,12 @@ public class PromotionPanel : MonoBehaviour
             }
         }
 
-        transform.parent.parent.gameObject.SetActive(true);
+        if (spawnedButtons.Count > 0)
+        {
+            transform.parent.parent.gameObject.SetActive(true);
+            gameManager.gameIsActive = false;
+        }
+
 
     }
 
@@ -51,6 +56,7 @@ public class PromotionPanel : MonoBehaviour
         }
 
         spawnedButtons = new List<GameObject>();
+        spawnType = new List<ChessPieceType>();
         gameManager.gameIsActive = true;
         transform.parent.parent.gameObject.SetActive(false);
     }

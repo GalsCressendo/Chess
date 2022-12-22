@@ -291,7 +291,6 @@ public class BoardManager : MonoBehaviour
 
         if(specialMove == SpecialMove.Promotion)
         {
-            gameManager.gameIsActive = false;
             var lastMove = moveList[moveList.Count - 1];
             var targetPawn = pieceMap[lastMove[1].x, lastMove[1].y];
 
@@ -428,10 +427,21 @@ public class BoardManager : MonoBehaviour
 
         if (swapGameObject != null)
         {
-            tileMap[pawn.GetComponent<ChessPiece>().currentX, pawn.GetComponent<ChessPiece>().currentY] = swapGameObject;
+            var lastMove = moveList[moveList.Count - 1];
+
+            pieceMap[lastMove[1].x, lastMove[1].y] = swapGameObject.GetComponent<ChessPiece>();
+            var targetTile = tileMap[lastMove[1].x, lastMove[1].y];
+
+            pawn.transform.SetParent(null, false);
             Vector3 tmp = swapGameObject.transform.position;
-            swapGameObject.transform.position = pawn.transform.position;
             pawn.transform.position = tmp;
+            pawn.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
+
+            swapGameObject.transform.SetParent(targetTile.transform);
+            swapGameObject.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
+            swapGameObject.transform.localPosition= new Vector3(0, 0.5f, 0);
+
+
             swapGameObject.transform.GetComponent<ChessPiece>().currentX = (int)swapGameObject.transform.position.x;
             swapGameObject.transform.GetComponent<ChessPiece>().currentY = (int)swapGameObject.transform.position.z;
 
