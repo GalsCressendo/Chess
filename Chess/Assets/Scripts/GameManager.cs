@@ -6,6 +6,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public bool gameIsActive;
+    [SerializeField] private GameObject pauseButton;
 
     public enum TurnState
     {
@@ -39,6 +40,7 @@ public class GameManager : MonoBehaviour
     private void CheckMate(int team)
     {
         gameIsActive = false;
+        pauseButton.SetActive(false);
         winnerPanel.transform.gameObject.SetActive(true);
         winnerPanel.SetWinnerText(team);
     }
