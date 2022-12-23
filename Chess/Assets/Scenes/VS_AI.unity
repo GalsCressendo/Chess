@@ -649,6 +649,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d1c7a8a691c09d54e8b334840dbb0faa, type: 3}
+--- !u!114 &760835113 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5554352199394896449, guid: d1c7a8a691c09d54e8b334840dbb0faa, type: 3}
+  m_PrefabInstance: {fileID: 760835112}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 507c822bdbcdb4e4699acaebc72234f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &769001266
 GameObject:
   m_ObjectHideFlags: 0
@@ -659,6 +670,7 @@ GameObject:
   m_Component:
   - component: {fileID: 769001267}
   - component: {fileID: 769001268}
+  - component: {fileID: 769001269}
   m_Layer: 0
   m_Name: Chessboard
   m_TagString: Untagged
@@ -704,6 +716,21 @@ MonoBehaviour:
   colorMaterial:
   - {fileID: 2100000, guid: e3d796d7c4936854baec55b8cef7c138, type: 2}
   - {fileID: 2100000, guid: 61814567417bbde459600e51a7325812, type: 2}
+--- !u!114 &769001269
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 769001266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba073c9a78bf5484da4971970f97864e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoverMaterial: {fileID: 2100000, guid: 2ced181b7144f154fba174ad7be74248, type: 2}
+  highlightMaterial: {fileID: 2100000, guid: b39daedf32bc79842a6d4ebde6194ce2, type: 2}
+  promotionPanel: {fileID: 760835113}
 --- !u!1 &1720833991
 GameObject:
   m_ObjectHideFlags: 0
@@ -801,6 +828,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameIsActive: 1
+  isVsAI: 1
   pauseButton: {fileID: 757791685}
   turnState: 0
   winnerPanel: {fileID: 398274237}

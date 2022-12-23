@@ -2,10 +2,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-public class BoardManager : MonoBehaviour
+public abstract class BoardManager : MonoBehaviour
 {
-    const int TILE_X_COUNT = 8;
-    const int TILE_Y_COUNT = 8;
+    protected const int TILE_X_COUNT = 8;
+    protected const int TILE_Y_COUNT = 8;
     const string TILE_TAG = "Tile";
 
     public GameObject[,] tileMap;
@@ -17,7 +17,7 @@ public class BoardManager : MonoBehaviour
     Material initialMaterial;
 
     //piece movement
-    ChessPiece[,] pieceMap;
+    protected ChessPiece[,] pieceMap;
     private GameObject currentPiece;
     private List<Vector2Int> availableMoves;
     private List<Vector2Int[]> moveList = new List<Vector2Int[]>(); //To keep track of move record
@@ -52,6 +52,17 @@ public class BoardManager : MonoBehaviour
     {
         if (gameManager.gameIsActive)
         {
+            //AI Section
+            if (gameManager.isVsAI && gameManager.turnState == GameManager.TurnState.BlackTurn)
+            {
+                ChessPiece aiPiece = GetAIPiece();
+                Debug.Log(aiPiece.type);
+
+                gameManager.turnState = GameManager.TurnState.WhiteTurn;
+                return;
+            }
+
+            //Human Section
             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out hit))
@@ -75,7 +86,7 @@ public class BoardManager : MonoBehaviour
 
                     if (Input.GetMouseButtonDown(0))
                     {
-
+                       
                         currentTile.GetComponent<MeshRenderer>().material = initialMaterial;
 
                         //if not holding a piece
@@ -381,6 +392,7 @@ public class BoardManager : MonoBehaviour
         promotionPanel.transform.parent.parent.gameObject.SetActive(false);
     }
 
+    protected abstract ChessPiece GetAIPiece();
    
 
 }
