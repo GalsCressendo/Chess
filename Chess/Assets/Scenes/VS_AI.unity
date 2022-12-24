@@ -734,6 +734,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hoverMaterial: {fileID: 2100000, guid: 2ced181b7144f154fba174ad7be74248, type: 2}
   highlightMaterial: {fileID: 2100000, guid: b39daedf32bc79842a6d4ebde6194ce2, type: 2}
+  killerMoveMaterial: {fileID: 2100000, guid: a921fc99485dcc245b7c7812d5e677a4, type: 2}
   promotionPanel: {fileID: 760835113}
 --- !u!1001 &1189548659
 PrefabInstance:
