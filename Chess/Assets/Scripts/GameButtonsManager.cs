@@ -22,13 +22,25 @@ public class GameButtonsManager : MonoBehaviour
 
         foreach(Button b in replayButton)
         {
-            b.onClick.AddListener(() => sceneLoader.LoadScene(SceneManager.GetActiveScene().name));
+            b.onClick.AddListener(ReplayButtonOnClick);
         }
 
         foreach(Button b in mainMenuButton)
         {
-            b.onClick.AddListener(() => sceneLoader.LoadScene(SceneLoader.START_MENU_SCENE));
+            b.onClick.AddListener(MainButtonOnClick);
         }
+    }
+
+    private void ReplayButtonOnClick()
+    {
+        sceneLoader.LoadScene(SceneManager.GetActiveScene().name);
+        FindObjectOfType<AudioManager>().GetMovePieceAudio();
+    }
+
+    private void MainButtonOnClick()
+    {
+        sceneLoader.LoadScene(SceneLoader.START_MENU_SCENE);
+        FindObjectOfType<AudioManager>().GetMovePieceAudio();
     }
 
     private void PauseButtonOnClick()
@@ -36,6 +48,7 @@ public class GameButtonsManager : MonoBehaviour
         gameManager.gameIsActive = false;
         pauseMenu.SetActive(true);
         pauseButton.SetActive(false);
+        FindObjectOfType<AudioManager>().GetMovePieceAudio();
     }
 
     private void ExitMenuButtonOnClick()
@@ -43,6 +56,7 @@ public class GameButtonsManager : MonoBehaviour
         gameManager.gameIsActive = true;
         pauseButton.SetActive(true);
         pauseMenu.SetActive(false);
+        FindObjectOfType<AudioManager>().GetMovePieceAudio();
     }
 
 }

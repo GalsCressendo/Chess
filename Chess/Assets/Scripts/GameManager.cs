@@ -36,5 +36,6 @@ public class GameManager : MonoBehaviour
         pauseButton.SetActive(false);
         winnerPanel.transform.gameObject.SetActive(true);
         winnerPanel.SetWinnerText(team);
+        FindObjectOfType<AudioManager>().PlayAudio(AudioManager.WIN_AUDIO);
     }
 }
