@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System.Collections;
 
 public class BoardManager : MonoBehaviour
 {
@@ -174,19 +175,12 @@ public class BoardManager : MonoBehaviour
                         {
                             GameObject eatenPiece = AIChosenTile.transform.GetChild(0).gameObject;
 
-                            //Add the piece to the graveyard
-                            AddPieceToGraveyard(eatenPiece);
-
                             //Set the new position of the current piece
-                            SetAIPiecePosition(AIChosenTile.transform);
-                            gameManager.CheckWinConditions(eatenPiece.GetComponent<ChessPiece>().type, eatenPiece.GetComponent<ChessPiece>().team);
-
-                            AIChosenTile = null;;
+                            StartCoroutine(SetAIPiecePosition(AIChosenTile.transform,eatenPiece));
                         }
                         else
                         {
-                            SetAIPiecePosition(AIChosenTile.transform);
-                            AIChosenTile = null;
+                            StartCoroutine(SetAIPiecePosition(AIChosenTile.transform,null));
                         }
                     }
                 }
@@ -273,25 +267,39 @@ public class BoardManager : MonoBehaviour
         currentPiece = null;
     }
 
-    private void SetAIPiecePosition(Transform tile)
+    private IEnumerator SetAIPiecePosition(Transform tile, GameObject eatenPiece)
     {
-        currentPiece.transform.SetParent(tile, false);
-        Vector2Int prevPosition = new Vector2Int(currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY);
-        pieceMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY] = null;
+        yield return new WaitForSeconds(0.5f);
 
-        currentPiece.GetComponent<ChessPiece>().currentX = (int)tile.transform.position.x;
-        currentPiece.GetComponent<ChessPiece>().currentY = (int)tile.transform.position.z;
-        Vector2Int newPosition = new Vector2Int(currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY);
+        if (currentPiece != null)
+        {
+            currentPiece.transform.SetParent(tile, false);
 
-        pieceMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY] = currentPiece.GetComponent<ChessPiece>();
-        currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y - 0.5f, currentPiece.transform.position.z);
+            if (eatenPiece != null)
+            {
+                AddPieceToGraveyard(eatenPiece);
+                gameManager.CheckWinConditions(eatenPiece.GetComponent<ChessPiece>().type, eatenPiece.GetComponent<ChessPiece>().team);
+            }
 
-        gameManager.SwitchTurn();
+            Vector2Int prevPosition = new Vector2Int(currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY);
+            pieceMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY] = null;
 
-        moveList.Add(new Vector2Int[] { prevPosition, newPosition });
-        ProcessSpecialMove();
+            currentPiece.GetComponent<ChessPiece>().currentX = (int)tile.transform.position.x;
+            currentPiece.GetComponent<ChessPiece>().currentY = (int)tile.transform.position.z;
+            Vector2Int newPosition = new Vector2Int(currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY);
 
-        currentPiece = null;
+            pieceMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY] = currentPiece.GetComponent<ChessPiece>();
+            currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y - 0.5f, currentPiece.transform.position.z);
+
+            gameManager.SwitchTurn();
+
+            moveList.Add(new Vector2Int[] { prevPosition, newPosition });
+            ProcessSpecialMove();
+
+            AIChosenTile = null; ;
+            currentPiece = null;
+        }
+        
     }
 
     private void ResetPiecePosition()
