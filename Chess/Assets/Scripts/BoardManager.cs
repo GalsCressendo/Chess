@@ -41,6 +41,9 @@ public class BoardManager : MonoBehaviour
     //promotion requirements
     public PromotionPanel promotionPanel;
 
+    //AI
+    private GameObject AIChosenTile;
+
     private void Start()
     {
         pieceMap = FindObjectOfType<BoardGenerator>().chessPieces;
@@ -155,9 +158,37 @@ public class BoardManager : MonoBehaviour
                     //Pick Up a piece
                     currentPiece = GetAIRandomBlackPiece();
                     currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y + 0.5f, currentPiece.transform.position.z);
-                    HighlightMoveTile(currentPiece.GetComponent<ChessPiece>().GetAvailableMoves(ref pieceMap, TILE_X_COUNT, TILE_Y_COUNT));
+                    availableMoves = currentPiece.GetComponent<ChessPiece>().GetAvailableMoves(ref pieceMap, TILE_X_COUNT, TILE_Y_COUNT);
 
+                }
+                else
+                {
+                    if (AIChosenTile == null)
+                    {
+                        AIChosenTile = GetAIChosenTile();
+                       
+                    }
+                    else
+                    {
+                        if (AIChosenTile.transform.childCount == 1)
+                        {
+                            GameObject eatenPiece = AIChosenTile.transform.GetChild(0).gameObject;
 
+                            //Add the piece to the graveyard
+                            AddPieceToGraveyard(eatenPiece);
+
+                            //Set the new position of the current piece
+                            SetAIPiecePosition(AIChosenTile.transform);
+                            gameManager.CheckWinConditions(eatenPiece.GetComponent<ChessPiece>().type, eatenPiece.GetComponent<ChessPiece>().team);
+
+                            AIChosenTile = null;;
+                        }
+                        else
+                        {
+                            SetAIPiecePosition(AIChosenTile.transform);
+                            AIChosenTile = null;
+                        }
+                    }
                 }
             }
             
@@ -242,6 +273,27 @@ public class BoardManager : MonoBehaviour
         currentPiece = null;
     }
 
+    private void SetAIPiecePosition(Transform tile)
+    {
+        currentPiece.transform.SetParent(tile, false);
+        Vector2Int prevPosition = new Vector2Int(currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY);
+        pieceMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY] = null;
+
+        currentPiece.GetComponent<ChessPiece>().currentX = (int)tile.transform.position.x;
+        currentPiece.GetComponent<ChessPiece>().currentY = (int)tile.transform.position.z;
+        Vector2Int newPosition = new Vector2Int(currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY);
+
+        pieceMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY] = currentPiece.GetComponent<ChessPiece>();
+        currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y - 0.5f, currentPiece.transform.position.z);
+
+        gameManager.SwitchTurn();
+
+        moveList.Add(new Vector2Int[] { prevPosition, newPosition });
+        ProcessSpecialMove();
+
+        currentPiece = null;
+    }
+
     private void ResetPiecePosition()
     {
         currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y - 0.5f, currentPiece.transform.position.z);
@@ -272,7 +324,11 @@ public class BoardManager : MonoBehaviour
     {
         foreach (Vector2Int pos in availableMoves)
         {
-            tileMap[pos.x, pos.y].GetComponent<MeshRenderer>().material = highlight_initialMaterial[pos.x, pos.y];
+            if(highlight_initialMaterial.Length > 0)
+            {
+                tileMap[pos.x, pos.y].GetComponent<MeshRenderer>().material = highlight_initialMaterial[pos.x, pos.y];
+            }
+
         }
     }
 
@@ -399,7 +455,7 @@ public class BoardManager : MonoBehaviour
     }
 
     //AI Section
-    public GameObject GetAIRandomBlackPiece()
+    private GameObject GetAIRandomBlackPiece()
     {
         List<ChessPiece> blackPieces = new List<ChessPiece>();
 
@@ -420,6 +476,23 @@ public class BoardManager : MonoBehaviour
 
         int r = Random.Range(0, blackPieces.Count);
         return blackPieces[r].gameObject;
+    }
+
+    private GameObject GetAIChosenTile()
+    {
+        Vector2Int tile = Vector2Int.down;
+        if(availableMoves.Count > 0)
+        {
+            int r = Random.Range(0, availableMoves.Count);
+            tile = availableMoves[r];
+        }
+
+        if (tile != Vector2Int.down)
+        {
+            return tileMap[tile.x, tile.y];
+        }
+
+        return null;
     }
 
    
