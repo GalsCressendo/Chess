@@ -14,6 +14,7 @@ public class AudioManager : MonoBehaviour
     public const string MOVE_PIECE_2 = "MovePiece2";
     public const string MOVE_PIECE_3 = "MovePiece3";
     public const string MOVE_PIECE_4 = "MovePiece4";
+    public const string WIN_AUDIO = "Win";
 
     private void Awake()
     {
