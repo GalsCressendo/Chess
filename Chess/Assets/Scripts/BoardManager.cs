@@ -275,7 +275,6 @@ public class BoardManager : MonoBehaviour
     private IEnumerator SetAIPiecePosition(Transform tile, GameObject eatenPiece)
     {
         yield return new WaitForSeconds(0.5f);
-
         if (currentPiece != null)
         {
             currentPiece.transform.SetParent(tile, false);
@@ -299,9 +298,13 @@ public class BoardManager : MonoBehaviour
 
             moveList.Add(new Vector2Int[] { prevPosition, newPosition });
             ProcessSpecialMove();
-            gameManager.CheckMate(currentPiece.GetComponent<ChessPiece>().team);
 
-            AIChosenTile = null; ;
+            if (CheckForCheckmate())
+            {
+                gameManager.CheckMate(currentPiece.GetComponent<ChessPiece>().team);
+            }
+
+            AIChosenTile = null;
             currentPiece = null;
         }
         
