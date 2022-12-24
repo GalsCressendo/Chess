@@ -246,6 +246,7 @@ public class BoardManager : MonoBehaviour
 
     private void SetPiecePosition(Transform tile)
     {
+        FindObjectOfType<AudioManager>().GetMovePieceAudio();
         currentPiece.transform.SetParent(tile, false);
         Vector2Int prevPosition = new Vector2Int(currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY);
         pieceMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY] = null;
@@ -277,6 +278,7 @@ public class BoardManager : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         if (currentPiece != null)
         {
+            FindObjectOfType<AudioManager>().GetMovePieceAudio();
             currentPiece.transform.SetParent(tile, false);
 
             if (eatenPiece != null)
@@ -312,6 +314,7 @@ public class BoardManager : MonoBehaviour
 
     private void ResetPiecePosition()
     {
+        FindObjectOfType<AudioManager>().GetMovePieceAudio();
         currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y - 0.5f, currentPiece.transform.position.z);
         ResetTileAfterHighlight();
         currentPiece = null;

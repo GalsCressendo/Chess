@@ -14,6 +14,12 @@ public class StartMenuButtonsManager : MonoBehaviour
     {
         twoPlayerButton.onClick.AddListener(() => sceneLoader.LoadScene(SceneLoader.TWO_PLAYER_SCENE));
         vsAIButton.onClick.AddListener(() => sceneLoader.LoadScene(SceneLoader.VS_AI_SCENE));
-        quitButton.onClick.AddListener(() => Application.Quit());
+        quitButton.onClick.AddListener(QuitButtonOnClick);
+    }
+
+    private void QuitButtonOnClick()
+    {
+        FindObjectOfType<AudioManager>().PlayAudio(AudioManager.BOARD_START_AUDIO);
+        Application.Quit();
     }
 }
