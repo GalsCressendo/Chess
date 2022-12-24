@@ -377,7 +377,21 @@ public class BoardManager : MonoBehaviour
                 //if the target pawn is black pawn and lastmove is on the other side
                 else if (targetPawn.team == 1 && lastMove[1].y == 0)
                 {
-                    promotionPanel.SpawnPiecesButtons(1);
+                    if (!gameManager.isVsAI)
+                    {
+                        promotionPanel.SpawnPiecesButtons(1);
+                    }
+                    else
+                    {
+                        //If it is AI that get a promotion, pick random piece
+                        var pieces = (from piece in GetComponent<BoardGenerator>().chessPiecePrefabs
+                                           where piece.GetComponent<ChessPiece>().type != ChessPieceType.Pawn
+                                           select piece.GetComponent<ChessPiece>().type).ToList();
+
+                        int random = Random.Range(0, pieces.Count());
+                        GetPromotionPiece(pieces[random], 1);
+                    }
+
                 }
 
 

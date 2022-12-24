@@ -559,6 +559,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5554352199394896449, guid: d1c7a8a691c09d54e8b334840dbb0faa, type: 3}
+      propertyPath: gameManager
+      value: 
+      objectReference: {fileID: 1878016074}
     - target: {fileID: 5554352200054564761, guid: d1c7a8a691c09d54e8b334840dbb0faa, type: 3}
       propertyPath: m_Name
       value: PromotionCanvas
