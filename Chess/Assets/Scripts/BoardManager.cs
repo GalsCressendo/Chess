@@ -52,98 +52,115 @@ public class BoardManager : MonoBehaviour
     {
         if (gameManager.gameIsActive)
         {
-            RaycastHit hit;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out hit))
+            if(gameManager.turnState == GameManager.TurnState.WhiteTurn || (gameManager.turnState == GameManager.TurnState.BlackTurn && !gameManager.isVsAI))
             {
-                if (hit.transform.tag == TILE_TAG)
+                RaycastHit hit;
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                if (Physics.Raycast(ray, out hit))
                 {
-
-                    if (currentTile == null)
-                    {
-                        currentTile = hit.transform.gameObject;
-                        initialMaterial = hit.transform.GetComponent<MeshRenderer>().material;
-                        currentTile.GetComponent<MeshRenderer>().material = hoverMaterial;
-                    }
-                    else if (currentTile != hit.transform.gameObject)
-                    {
-                        currentTile.GetComponent<MeshRenderer>().material = initialMaterial;
-                        initialMaterial = hit.transform.GetComponent<MeshRenderer>().material;
-                        currentTile = hit.transform.gameObject;
-                        currentTile.GetComponent<MeshRenderer>().material = hoverMaterial;
-                    }
-
-                    if (Input.GetMouseButtonDown(0))
+                    if (hit.transform.tag == TILE_TAG)
                     {
 
-                        currentTile.GetComponent<MeshRenderer>().material = initialMaterial;
-
-                        //if not holding a piece
-                        if (currentPiece == null)
+                        if (currentTile == null)
                         {
-                            if (currentTile.transform.childCount == 1)
-                            {
-                                if ((gameManager.turnState == GameManager.TurnState.WhiteTurn && currentTile.transform.GetChild(0).GetComponent<ChessPiece>().team == 0) ||
-                                    (gameManager.turnState == GameManager.TurnState.BlackTurn && currentTile.transform.GetChild(0).GetComponent<ChessPiece>().team == 1))
-                                {
-                                    currentPiece = currentTile.transform.GetChild(0).gameObject;
-                                    currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y + 0.5f, currentPiece.transform.position.z);
-
-                                    highlight_initialMaterial = new Material[TILE_X_COUNT, TILE_Y_COUNT];
-                                    availableMoves = currentPiece.GetComponent<ChessPiece>().GetAvailableMoves(ref pieceMap, TILE_X_COUNT, TILE_Y_COUNT);
-                                    specialMove = currentPiece.GetComponent<ChessPiece>().GetSpecialMoves(ref pieceMap, ref availableMoves, ref moveList);
-                                    highlight_initialMaterial = GetHighlightInitialMaterial(availableMoves);
-                                    HighlightMoveTile(availableMoves);
-                                }
-
-                            }
+                            currentTile = hit.transform.gameObject;
+                            initialMaterial = hit.transform.GetComponent<MeshRenderer>().material;
+                            currentTile.GetComponent<MeshRenderer>().material = hoverMaterial;
                         }
-                        //if holding a piece
-                        else if (currentPiece != null)
+                        else if (currentTile != hit.transform.gameObject)
                         {
-                            //if this tile is valid
-                            if (availableMoves.Contains(new Vector2Int((int)currentTile.transform.position.x, (int)currentTile.transform.position.z)))
+                            currentTile.GetComponent<MeshRenderer>().material = initialMaterial;
+                            initialMaterial = hit.transform.GetComponent<MeshRenderer>().material;
+                            currentTile = hit.transform.gameObject;
+                            currentTile.GetComponent<MeshRenderer>().material = hoverMaterial;
+                        }
+
+                        if (Input.GetMouseButtonDown(0))
+                        {
+
+                            currentTile.GetComponent<MeshRenderer>().material = initialMaterial;
+
+                            //if not holding a piece
+                            if (currentPiece == null)
                             {
-                                //if there is another piece in the tile
                                 if (currentTile.transform.childCount == 1)
                                 {
-                                    if (currentPiece.GetComponent<ChessPiece>().team != currentTile.transform.GetChild(0).GetComponent<ChessPiece>().team)
+                                    if ((gameManager.turnState == GameManager.TurnState.WhiteTurn && currentTile.transform.GetChild(0).GetComponent<ChessPiece>().team == 0) ||
+                                        (gameManager.turnState == GameManager.TurnState.BlackTurn && currentTile.transform.GetChild(0).GetComponent<ChessPiece>().team == 1))
                                     {
-                                        GameObject eatenPiece = currentTile.transform.GetChild(0).gameObject;
+                                        currentPiece = currentTile.transform.GetChild(0).gameObject;
+                                        currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y + 0.5f, currentPiece.transform.position.z);
 
-                                        //Add the piece to the graveyard
-                                        AddPieceToGraveyard(eatenPiece);
+                                        highlight_initialMaterial = new Material[TILE_X_COUNT, TILE_Y_COUNT];
+                                        availableMoves = currentPiece.GetComponent<ChessPiece>().GetAvailableMoves(ref pieceMap, TILE_X_COUNT, TILE_Y_COUNT);
+                                        specialMove = currentPiece.GetComponent<ChessPiece>().GetSpecialMoves(ref pieceMap, ref availableMoves, ref moveList);
+                                        highlight_initialMaterial = GetHighlightInitialMaterial(availableMoves);
+                                        HighlightMoveTile(availableMoves);
+                                    }
+
+                                }
+                            }
+                            //if holding a piece
+                            else if (currentPiece != null)
+                            {
+                                //if this tile is valid
+                                if (availableMoves.Contains(new Vector2Int((int)currentTile.transform.position.x, (int)currentTile.transform.position.z)))
+                                {
+                                    //if there is another piece in the tile
+                                    if (currentTile.transform.childCount == 1)
+                                    {
+                                        if (currentPiece.GetComponent<ChessPiece>().team != currentTile.transform.GetChild(0).GetComponent<ChessPiece>().team)
+                                        {
+                                            GameObject eatenPiece = currentTile.transform.GetChild(0).gameObject;
+
+                                            //Add the piece to the graveyard
+                                            AddPieceToGraveyard(eatenPiece);
+
+                                            //Set the new position of the current piece
+                                            SetPiecePosition(currentTile.transform);
+                                            gameManager.CheckWinConditions(eatenPiece.GetComponent<ChessPiece>().type, eatenPiece.GetComponent<ChessPiece>().team);
+
+                                        }
+                                        else if (currentPiece.GetComponent<ChessPiece>().team == currentTile.transform.GetChild(0).GetComponent<ChessPiece>().team)
+                                        {
+                                            //Put back the piece;
+                                            ResetPiecePosition();
+                                        }
+
+                                    }
+                                    else
+                                    {
 
                                         //Set the new position of the current piece
                                         SetPiecePosition(currentTile.transform);
-                                        gameManager.CheckWinConditions(eatenPiece.GetComponent<ChessPiece>().type, eatenPiece.GetComponent<ChessPiece>().team);
 
                                     }
-                                    else if (currentPiece.GetComponent<ChessPiece>().team == currentTile.transform.GetChild(0).GetComponent<ChessPiece>().team)
-                                    {
-                                        //Put back the piece;
-                                        ResetPiecePosition();
-                                    }
-
                                 }
-                                else
+                                else //if clicked tile is not valid
                                 {
-
-                                    //Set the new position of the current piece
-                                    SetPiecePosition(currentTile.transform);
-
+                                    //Put back the piece
+                                    ResetPiecePosition();
                                 }
                             }
-                            else //if clicked tile is not valid
-                            {
-                                //Put back the piece
-                                ResetPiecePosition();
-                            }
-                        }
 
+                        }
                     }
                 }
             }
+            //if it is AI black turn
+            else if(gameManager.turnState == GameManager.TurnState.BlackTurn && gameManager.isVsAI)
+            {
+                if(currentPiece == null)
+                {
+                    //Pick Up a piece
+                    currentPiece = GetAIRandomBlackPiece();
+                    currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y + 0.5f, currentPiece.transform.position.z);
+                    HighlightMoveTile(currentPiece.GetComponent<ChessPiece>().GetAvailableMoves(ref pieceMap, TILE_X_COUNT, TILE_Y_COUNT));
+
+
+                }
+            }
+            
         }
 
     }
@@ -379,6 +396,30 @@ public class BoardManager : MonoBehaviour
 
         gameManager.gameIsActive = true;
         promotionPanel.transform.parent.parent.gameObject.SetActive(false);
+    }
+
+    //AI Section
+    public GameObject GetAIRandomBlackPiece()
+    {
+        List<ChessPiece> blackPieces = new List<ChessPiece>();
+
+        for(int x = 0; x<TILE_X_COUNT; x++)
+        {
+            for(int y =0;y<TILE_Y_COUNT; y++)
+            {
+                if (pieceMap[x, y] != null && pieceMap[x, y].team == 1)
+                {
+                    if (pieceMap[x, y].GetAvailableMoves(ref pieceMap, TILE_X_COUNT, TILE_Y_COUNT).Count > 0)
+                    {
+                        blackPieces.Add(pieceMap[x, y]);
+                    }
+                }
+                
+            }
+        }
+
+        int r = Random.Range(0, blackPieces.Count);
+        return blackPieces[r].gameObject;
     }
 
    
