@@ -421,6 +421,8 @@ public class BoardManager : MonoBehaviour
                     if (currentPiece.transform.GetComponent<King>() != null)
                     {
                         currentPiece.transform.GetComponent<King>().SetRookPosAfterCastling(tileMap[3, 0].transform, rook.transform);
+                        rook.currentX = 3;
+                        rook.currentY = 0;
                     }
                 }
                 //if we are on the black side
@@ -432,6 +434,8 @@ public class BoardManager : MonoBehaviour
                     if (currentPiece.transform.GetComponent<King>() != null)
                     {
                         currentPiece.transform.GetComponent<King>().SetRookPosAfterCastling(tileMap[3, 7].transform, rook.transform);
+                        rook.currentX = 3;
+                        rook.currentY = 7;
                     }
                 }
             }
@@ -447,6 +451,8 @@ public class BoardManager : MonoBehaviour
                     if (currentPiece.transform.GetComponent<King>() != null)
                     {
                         currentPiece.transform.GetComponent<King>().SetRookPosAfterCastling(tileMap[5, 0].transform, rook.transform);
+                        rook.currentX = 5;
+                        rook.currentY = 0;
                     }
                 }
                 //if we are on the black side
@@ -458,6 +464,8 @@ public class BoardManager : MonoBehaviour
                     if (currentPiece.transform.GetComponent<King>() != null)
                     {
                         currentPiece.transform.GetComponent<King>().SetRookPosAfterCastling(tileMap[5, 7].transform, rook.transform);
+                        rook.currentX = 5;
+                        rook.currentY = 7;
                     }
                 }
             }

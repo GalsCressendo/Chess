@@ -208,5 +208,6 @@ public class King : ChessPiece
     public void SetRookPosAfterCastling(Transform tileTransform, Transform rook)
     {
         rook.transform.SetParent(tileTransform, false);
+        
     }
 }
