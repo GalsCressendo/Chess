@@ -6,6 +6,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public bool gameIsActive;
+    public bool isVsAI;
     [SerializeField] private GameObject pauseButton;
 
     public enum TurnState

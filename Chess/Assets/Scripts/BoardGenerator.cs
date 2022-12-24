@@ -16,7 +16,7 @@ public class BoardGenerator : MonoBehaviour
     public GameObject[,] board = new GameObject[TILE_X_COUNT, TILE_Y_COUNT];
 
     [Header("Pieces Components")]
-    [SerializeField] private GameObject[] chessPiecePrefabs;
+    public GameObject[] chessPiecePrefabs;
     [SerializeField] private Material[] colorMaterial;
     public ChessPiece[,] chessPieces;
 
