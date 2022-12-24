@@ -30,15 +30,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void CheckWinConditions(ChessPieceType type, int team)
-    {
-        if(type == ChessPieceType.King)
-        {
-            CheckMate(team);
-        }
-    }
-
-    private void CheckMate(int team)
+    public void CheckMate(int team)
     {
         gameIsActive = false;
         pauseButton.SetActive(false);
