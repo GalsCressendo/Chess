@@ -14,6 +14,7 @@ public class AI : MonoBehaviour
     private int depth = 1;
     List<ChessPiece> blackPieces = new List<ChessPiece>();
     List<ChessPiece> whitePieces = new List<ChessPiece>();
+    PiecePositionPoint positionPoints = new PiecePositionPoint();
 
     public class Move
     {
@@ -75,7 +76,7 @@ public class AI : MonoBehaviour
         Move bestMove = null;
         for(int i =0; i< depth; i++)
         {
-            if(i%2 == 0) //Max
+            if(i%2 == 0) //Max (Black pieces)
             {
                 int maxValue = int.MinValue;
                 foreach(ChessPiece p in blackPieces)
@@ -87,16 +88,20 @@ public class AI : MonoBehaviour
                         {
                             if(tileMap[m.x, m.y].transform.childCount > 0)
                             {
-                                int score = GetChessPieceValue(p) - GetChessPieceValue(simMap[m.x, m.y]);
-                                if(score > maxValue)
+                                if(simMap[m.x, m.y].team != p.team)
                                 {
-                                    maxValue = score;
-                                    bestMove = new Move(p, m);
+                                    int score = GetChessPieceValue(p) - GetChessPieceValue(simMap[m.x, m.y]) + positionPoints.GetPositionValue(p.type, m.x,m.y);
+                                    if (score > maxValue)
+                                    {
+                                        maxValue = score;
+                                        bestMove = new Move(p, m);
+                                    }
                                 }
+                               
                             }
                             else
                             {
-                                int score = GetChessPieceValue(p);
+                                int score = GetChessPieceValue(p) + positionPoints.GetPositionValue(p.type, m.x, m.y);
                                 if (score > maxValue)
                                 {
                                     maxValue = score;
@@ -107,17 +112,25 @@ public class AI : MonoBehaviour
                     }
                 }
 
-                simMap[bestMove.piece.currentX, bestMove.piece.currentY] = null;
-                simMap[bestMove.tile.x, bestMove.tile.y] = bestMove.piece;
-                
-            }
-            else //Min
-            {
+                MoveSimulation(bestMove, ref simMap);
+                Debug.Log(bestMove.piece.type + bestMove.tile.x.ToString() + bestMove.tile.y.ToString());
 
+            }
+            else //Min (white pieces)
+            {
+                
             }
         }
 
         return bestMove;
+    }
+
+    private void MoveSimulation(Move bestMove, ref ChessPiece[,] simMap)
+    {
+        simMap[bestMove.piece.currentX, bestMove.piece.currentY] = null;
+        simMap[bestMove.tile.x, bestMove.tile.y] = bestMove.piece;
+        bestMove.piece.currentX = bestMove.tile.x;
+        bestMove.piece.currentY = bestMove.tile.y;
     }
 
     public Move GetAIMove (ChessPiece[,] pieceMap, GameObject[,] tileMap)
