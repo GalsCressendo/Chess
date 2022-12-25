@@ -616,7 +616,7 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    private bool ContainsValidMove(ref List<Vector2Int> moves, Vector2Int piecePos)
+    public bool ContainsValidMove(ref List<Vector2Int> moves, Vector2Int piecePos)
     {
         for (int i = 0; i < moves.Count; i++)
         {

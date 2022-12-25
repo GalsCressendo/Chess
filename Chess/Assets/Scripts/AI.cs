@@ -72,12 +72,13 @@ public class AI : MonoBehaviour
     {
         ChessPiece[,] simMap = pieceMap;
         List<Move> piecesBestMove = new List<Move>();
+        Move pickedMove = null;
 
-        Move bestMove = CheckForCheckMate(simMap);
 
-        if(bestMove != null)
+        pickedMove = PreventCheckMate(ref simMap);
+        if (pickedMove != null)
         {
-            return bestMove;
+            return pickedMove;
         }
 
         foreach (ChessPiece piece in blackPieces)
@@ -87,9 +88,11 @@ public class AI : MonoBehaviour
                 int maxValue = int.MinValue;
                 Vector2Int currentPieceBestMove = Vector2Int.down;
                 var moves = piece.GetAvailableMoves(ref simMap, BoardManager.TILE_X_COUNT, BoardManager.TILE_Y_COUNT);
+
+                int score = 0;
                 foreach (Vector2Int m in moves)
                 {
-                    int score = GetChessPieceValue(piece) + positionPoints.GetPositionValue(piece.type, m.x, m.y);
+                    score = GetChessPieceValue(piece) + positionPoints.GetPositionValue(piece.type, m.x, m.y);
 
                     if (simMap[m.x, m.y] != null && simMap[m.x, m.y].team != piece.team)
                     {
@@ -103,12 +106,14 @@ public class AI : MonoBehaviour
                     }
 
                 }
-
+                
                 piecesBestMove.Add(new Move(piece, currentPieceBestMove));
+
             }
         }
 
-        return piecesBestMove[Random.Range(0, piecesBestMove.Count)];
+        pickedMove = piecesBestMove[Random.Range(0, piecesBestMove.Count)];
+        return pickedMove;
     }
 
     public Move GetAIMove(ChessPiece[,] pieceMap)
@@ -118,90 +123,131 @@ public class AI : MonoBehaviour
         return bestMove;
     }
 
-    private Move CheckForCheckMate(ChessPiece[,] pieceMap)
+    public void RemoveCheckmatePosition(ChessPiece piece, ref List<Vector2Int> moves, ref ChessPiece[,] simMap)
     {
-        var simMap = pieceMap;
-        ChessPiece targetKing = null;
-        List<Move> defendMove = new List<Move>();
+        if (piece.type == ChessPieceType.King)
+        {
+            foreach (ChessPiece whitePiece in whitePieces)
+            {
+                if (whitePiece.GetAvailableMoves(ref simMap, BoardManager.TILE_X_COUNT, BoardManager.TILE_Y_COUNT).Count > 0)
+                {
+                    var whiteMove = whitePiece.GetAvailableMoves(ref simMap, BoardManager.TILE_X_COUNT, BoardManager.TILE_Y_COUNT);
+                    foreach (Vector2Int wm in whiteMove)
+                    {
+                        if (simMap[wm.x, wm.y] != null)
+                        {
+                            if (simMap[wm.x, wm.y].type != ChessPieceType.King && simMap[wm.x, wm.y].team == 1)
+                            {
+                                moves.Remove(wm);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-        //Get the black team king
+    public Move PreventCheckMate(ref ChessPiece[,] pieceMap)
+    {
+        //Check if the king is under attack
+        ChessPiece targetKing = null;
+        Move bestMove = null;
+
         for (int x = 0; x < BoardManager.TILE_X_COUNT; x++)
         {
             for (int y = 0; y < BoardManager.TILE_Y_COUNT; y++)
             {
-                if(pieceMap[x,y]!= null)
+                if (pieceMap[x, y] != null)
                 {
-                    if (pieceMap[x, y].type == ChessPieceType.King && pieceMap[x, y].team == 1)
+                    if (pieceMap[x, y].type == ChessPieceType.King && pieceMap[x,y].team == 1)
                     {
                         targetKing = pieceMap[x, y];
                     }
                 }
-                
+
             }
         }
 
-        List<Vector2Int> regularMoves = new List<Vector2Int>();
-        BoardManager.SpecialMove sm = BoardManager.SpecialMove.None;
 
-        //Check for available movement in white pieces
         foreach (ChessPiece piece in whitePieces)
         {
-            if(piece.GetAvailableMoves(ref simMap, BoardManager.TILE_X_COUNT, BoardManager.TILE_Y_COUNT).Count > 0)
+            if(piece.GetAvailableMoves(ref pieceMap, BoardManager.TILE_X_COUNT, BoardManager.TILE_Y_COUNT).Count > 0)
             {
-                var moves = piece.GetAvailableMoves(ref simMap, BoardManager.TILE_X_COUNT, BoardManager.TILE_Y_COUNT);
-                foreach(Vector2Int m in moves)
+                List<Vector2Int> moves = piece.GetAvailableMoves(ref pieceMap, BoardManager.TILE_X_COUNT, BoardManager.TILE_Y_COUNT);
+                if (FindObjectOfType<BoardManager>().ContainsValidMove(ref moves, new Vector2Int(targetKing.currentX, targetKing.currentY)))
                 {
-                    if(simMap[m.x,m.y]!= null && simMap[m.x, m.y].type == ChessPieceType.King && simMap[m.x,m.y].team == 1)
+                    //The king is being attacked
+                    //Can the king move?
+                    List<Vector2Int> kingMoves = new List<Vector2Int>();
+                    if (targetKing.GetAvailableMoves(ref pieceMap, BoardManager.TILE_X_COUNT, BoardManager.TILE_Y_COUNT).Count > 0)
                     {
-                        //BLACK KING IS BEING ATTACKED
-
-                        //Can he move?
-                        regularMoves = targetKing.GetAvailableMoves(ref simMap, BoardManager.TILE_X_COUNT, BoardManager.TILE_Y_COUNT);
-                        sm = targetKing.GetSpecialMoves(ref simMap, ref regularMoves, ref FindObjectOfType<BoardManager>().moveList);
-
-                        Vector2Int currentBestMove = Vector2Int.down;
-                        if(regularMoves.Count > 0)
-                        {
-                            int maxValue = int.MinValue;
-                            foreach(Vector2Int rm in regularMoves)
-                            {
-                                int score = GetChessPieceValue(targetKing) + positionPoints.GetPositionValue(targetKing.type, rm.x, rm.y);
-
-                                if(score > maxValue)
-                                {
-                                    maxValue = score;
-                                    currentBestMove = rm;
-                                }
-                            }
-
-                            FindObjectOfType<BoardManager>().ProcessSpecialMove(sm);
-                            return (new Move(targetKing, currentBestMove));
-                        }
-
-                        //Can we defend him?
-                        for (int i = 0; i < blackPieces.Count; i++)
-                        {
-                            List<Vector2Int> defendingMoves = blackPieces[i].GetAvailableMoves(ref simMap, BoardManager.TILE_X_COUNT, BoardManager.TILE_Y_COUNT);
-                            FindObjectOfType<BoardManager>().SimulateMoveForSinglePiece(blackPieces[i], ref defendingMoves, targetKing);
-
-                            //if defending moves is empty, then we are in checkmate
-                            if (defendingMoves.Count != 0)
-                            {
-                                foreach(Vector2Int dm in defendingMoves)
-                                {
-                                    defendMove.Add(new Move(blackPieces[i], dm));
-                                }
-                            }
-                        }
-
-                        return defendMove[Random.Range(0, defendMove.Count)];
+                        kingMoves = targetKing.GetAvailableMoves(ref pieceMap, BoardManager.TILE_X_COUNT, BoardManager.TILE_Y_COUNT);
+                        RemoveCheckmatePosition(targetKing, ref kingMoves, ref pieceMap);
                     }
+
+                    if(kingMoves.Count == 0)
+                    {
+                        bestMove = new Move(targetKing, kingMoves[0]);
+                    }
+                    else if(kingMoves.Count > 0)
+                    {
+                        bestMove = new Move(targetKing, kingMoves[Random.Range(0, kingMoves.Count)]);
+                    }
+
+                }
+            }
+
+        }
+
+        return bestMove;
+    }
+
+    private void SimulatePickedMovement(ref ChessPiece[,] simMap, Move move)
+    {
+        simMap[move.piece.currentX, move.piece.currentY] = null;
+        simMap[move.tile.x, move.tile.y] = move.piece;
+        move.piece.currentX = move.tile.x;
+        move.piece.currentY = move.tile.y;
+    }
+
+
+    private bool NewMoveCausingCheckMate(ChessPiece[,] simMap)
+    {
+        //Check if the king is under attack
+        ChessPiece targetKing = null;
+
+        for (int x = 0; x < BoardManager.TILE_X_COUNT; x++)
+        {
+            for (int y = 0; y < BoardManager.TILE_Y_COUNT; y++)
+            {
+                if (simMap[x, y] != null)
+                {
+                    if (simMap[x, y].type == ChessPieceType.King && simMap[x,y].team == 1)
+                    {
+                        targetKing = simMap[x, y];
+                    }
+                }
+
+            }
+        }
+
+
+        foreach (ChessPiece piece in whitePieces)
+        {
+            if (piece.GetAvailableMoves(ref simMap, BoardManager.TILE_X_COUNT, BoardManager.TILE_Y_COUNT).Count > 0)
+            {
+                List<Vector2Int> moves = piece.GetAvailableMoves(ref simMap, BoardManager.TILE_X_COUNT, BoardManager.TILE_Y_COUNT);
+                if (FindObjectOfType<BoardManager>().ContainsValidMove(ref moves, new Vector2Int(targetKing.currentX, targetKing.currentY)))
+                {
+                    return true;
                 }
             }
         }
 
-        return null;
+        return false;
     }
+
+
 }
 
 
