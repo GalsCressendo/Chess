@@ -24,6 +24,10 @@ public class BoardGenerator : MonoBehaviour
     {
         SpawnAllChessPieces();
         GenerateAllTiles();
+    }
+
+    private void Start()
+    {
         FindObjectOfType<AudioManager>().PlayAudio(AudioManager.BOARD_START_AUDIO);
     }
 
