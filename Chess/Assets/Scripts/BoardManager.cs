@@ -21,7 +21,7 @@ public class BoardManager : MonoBehaviour
     private ChessPiece[,] pieceMap;
     private GameObject currentPiece;
     private List<Vector2Int> availableMoves;
-    private List<Vector2Int[]> moveList = new List<Vector2Int[]>(); //To keep track of move record
+    public List<Vector2Int[]> moveList = new List<Vector2Int[]>(); //To keep track of move record
     private Vector3 whiteDeadLastPos = Vector3.zero;
     private Vector3 blackDeadLastPos = Vector3.zero;
 
@@ -162,37 +162,6 @@ public class BoardManager : MonoBehaviour
             //if it is AI black turn
             else if(gameManager.turnState == GameManager.TurnState.BlackTurn && gameManager.isVsAI)
             {
-                //if(currentPiece == null)
-                //{
-                //    //Pick Up a piece
-                //    currentPiece = FindObjectOfType<AI>().GetAIPiece(pieceMap, TILE_X_COUNT, TILE_Y_COUNT);
-                //    currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y + 0.5f, currentPiece.transform.position.z);
-                //    availableMoves = currentPiece.GetComponent<ChessPiece>().GetAvailableMoves(ref pieceMap, TILE_X_COUNT, TILE_Y_COUNT);
-
-                //}
-                //else
-                //{
-                //    if (AIChosenTile == null)
-                //    {
-                //        AIChosenTile = FindObjectOfType<AI>().GetAIChosenTile(availableMoves, tileMap);
-
-                //    }
-                //    else
-                //    {
-                //        if (AIChosenTile.transform.childCount == 1)
-                //        {
-                //            GameObject eatenPiece = AIChosenTile.transform.GetChild(0).gameObject;
-
-                //            //Set the new position of the current piece
-                //            StartCoroutine(SetAIPiecePosition(AIChosenTile.transform,eatenPiece));
-                //        }
-                //        else
-                //        {
-                //            StartCoroutine(SetAIPiecePosition(AIChosenTile.transform,null));
-                //        }
-                //    }
-                //}
-
                 if (currentPiece == null && AIChosenTile == null)
                 {
                     var aiMove = FindObjectOfType<AI>().GetAIMove(pieceMap);
@@ -301,7 +270,7 @@ public class BoardManager : MonoBehaviour
         initialMaterial = tileMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY].GetComponent<MeshRenderer>().material;
 
         moveList.Add(new Vector2Int[] { prevPosition, newPosition });
-        ProcessSpecialMove();
+        ProcessSpecialMove(specialMove);
 
         if (CheckForCheckmate())
         {
@@ -341,7 +310,7 @@ public class BoardManager : MonoBehaviour
             pieceMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY] = currentPiece.GetComponent<ChessPiece>();
             currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y - 0.5f, currentPiece.transform.position.z);
             moveList.Add(new Vector2Int[] { prevPosition, newPosition });
-            ProcessSpecialMove();
+            ProcessSpecialMove(specialMove);
             if (CheckForCheckmate())
             {
                 gameManager.CheckMate(currentPiece.GetComponent<ChessPiece>().team);
@@ -394,7 +363,7 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    private void ProcessSpecialMove()
+    public void ProcessSpecialMove(BoardManager.SpecialMove specialMove)
     {
         if(specialMove == SpecialMove.EnPassant)
         {
@@ -541,7 +510,7 @@ public class BoardManager : MonoBehaviour
     }
 
     //Prevent Check and Checkmate
-    private void PreventCheck()
+    public void PreventCheck()
     {
         ChessPiece targetKing = null;
 
@@ -567,7 +536,7 @@ public class BoardManager : MonoBehaviour
         SimulateMoveForSinglePiece(currentPiece.GetComponent<ChessPiece>(), ref availableMoves, targetKing);
     }
 
-    private void SimulateMoveForSinglePiece(ChessPiece cp, ref List<Vector2Int> moves, ChessPiece targetKing)
+    public void SimulateMoveForSinglePiece(ChessPiece cp, ref List<Vector2Int> moves, ChessPiece targetKing)
     {
         //Save the current value, reset after the function called
         int actualX = cp.currentX;
