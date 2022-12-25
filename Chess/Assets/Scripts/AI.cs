@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,7 +10,6 @@ public class AI : MonoBehaviour
     private const int QUEEN_VALUE = 900;
     private const int KING_VALUE = 20000;
 
-    private int depth = 1;
     List<ChessPiece> blackPieces = new List<ChessPiece>();
     List<ChessPiece> whitePieces = new List<ChessPiece>();
     PiecePositionPoint positionPoints = new PiecePositionPoint();
@@ -36,13 +34,13 @@ public class AI : MonoBehaviour
             {
                 if (pieceMap[x, y] != null)
                 {
-                    if(pieceMap[x,y].team == 0)
+                    if (pieceMap[x, y].team == 1)
                     {
-                        whitePieces.Add(pieceMap[x, y]);
+                        blackPieces.Add(pieceMap[x, y]);
                     }
                     else
                     {
-                        blackPieces.Add(pieceMap[x, y]);
+                        whitePieces.Add(pieceMap[x, y]);
                     }
                 }
             }
@@ -70,73 +68,48 @@ public class AI : MonoBehaviour
         return 0;
     }
 
-    public Move Evaluate(ChessPiece[,] pieceMap, GameObject[,] tileMap)
+    public Move Evaluate(ChessPiece[,] pieceMap)
     {
         ChessPiece[,] simMap = pieceMap;
-        Move bestMove = null;
-        for(int i =0; i< depth; i++)
+        List<Move> piecesBestMove = new List<Move>();
+
+        foreach (ChessPiece piece in blackPieces)
         {
-            if(i%2 == 0) //Max (Black pieces)
+            if (piece.GetAvailableMoves(ref simMap, BoardManager.TILE_X_COUNT, BoardManager.TILE_Y_COUNT).Count > 0)
             {
                 int maxValue = int.MinValue;
-                foreach(ChessPiece p in blackPieces)
+                Vector2Int currentPieceBestMove = Vector2Int.down;
+                var moves = piece.GetAvailableMoves(ref simMap, BoardManager.TILE_X_COUNT, BoardManager.TILE_Y_COUNT);
+                foreach (Vector2Int m in moves)
                 {
-                    if(p.GetAvailableMoves(ref simMap, BoardManager.TILE_X_COUNT, BoardManager.TILE_Y_COUNT).Count > 0)
+                    int score = GetChessPieceValue(piece) + positionPoints.GetPositionValue(piece.type, m.x, m.y);
+
+                    if (simMap[m.x, m.y] != null && simMap[m.x, m.y].team != piece.team)
                     {
-                        List<Vector2Int> moves = p.GetAvailableMoves(ref simMap, BoardManager.TILE_X_COUNT, BoardManager.TILE_Y_COUNT);
-                        foreach(Vector2Int m in moves)
-                        {
-                            if(tileMap[m.x, m.y].transform.childCount > 0)
-                            {
-                                if(simMap[m.x, m.y].team != p.team)
-                                {
-                                    int score = GetChessPieceValue(p) - GetChessPieceValue(simMap[m.x, m.y]) + positionPoints.GetPositionValue(p.type, m.x,m.y);
-                                    if (score > maxValue)
-                                    {
-                                        maxValue = score;
-                                        bestMove = new Move(p, m);
-                                    }
-                                }
-                               
-                            }
-                            else
-                            {
-                                int score = GetChessPieceValue(p) + positionPoints.GetPositionValue(p.type, m.x, m.y);
-                                if (score > maxValue)
-                                {
-                                    maxValue = score;
-                                    bestMove = new Move(p, m);
-                                }
-                            }
-                        }
+                        score += GetChessPieceValue(simMap[m.x, m.y]);
                     }
+
+                    if (score > maxValue)
+                    {
+                        maxValue = score;
+                        currentPieceBestMove = m;
+                    }
+
                 }
 
-                MoveSimulation(bestMove, ref simMap);
-                Debug.Log(bestMove.piece.type + bestMove.tile.x.ToString() + bestMove.tile.y.ToString());
-
-            }
-            else //Min (white pieces)
-            {
-                
+                piecesBestMove.Add(new Move(piece, currentPieceBestMove));
             }
         }
 
-        return bestMove;
+        return piecesBestMove[Random.Range(0, piecesBestMove.Count)];
     }
 
-    private void MoveSimulation(Move bestMove, ref ChessPiece[,] simMap)
-    {
-        simMap[bestMove.piece.currentX, bestMove.piece.currentY] = null;
-        simMap[bestMove.tile.x, bestMove.tile.y] = bestMove.piece;
-        bestMove.piece.currentX = bestMove.tile.x;
-        bestMove.piece.currentY = bestMove.tile.y;
-    }
-
-    public Move GetAIMove (ChessPiece[,] pieceMap, GameObject[,] tileMap)
+    public Move GetAIMove(ChessPiece[,] pieceMap)
     {
         SetAvailableChessPieces(pieceMap);
-        var bestMove = Evaluate(pieceMap, tileMap);
+        var bestMove = Evaluate(pieceMap);
         return bestMove;
     }
 }
+
+

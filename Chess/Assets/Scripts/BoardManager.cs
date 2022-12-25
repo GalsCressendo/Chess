@@ -195,7 +195,7 @@ public class BoardManager : MonoBehaviour
 
                 if (currentPiece == null && AIChosenTile == null)
                 {
-                    var aiMove = FindObjectOfType<AI>().GetAIMove(pieceMap, tileMap);
+                    var aiMove = FindObjectOfType<AI>().GetAIMove(pieceMap);
                     currentPiece = aiMove.piece.gameObject;
                     AIChosenTile = tileMap[aiMove.tile.x, aiMove.tile.y];
 
