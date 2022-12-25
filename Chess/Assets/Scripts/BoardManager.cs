@@ -38,6 +38,7 @@ public class BoardManager : MonoBehaviour
     //highlighting
     public Material highlightMaterial;
     Material[,] highlight_initialMaterial;
+    public Material killerMoveMaterial;
 
     //promotion requirements
     public PromotionPanel promotionPanel;
@@ -119,10 +120,19 @@ public class BoardManager : MonoBehaviour
                                             GameObject eatenPiece = currentTile.transform.GetChild(0).gameObject;
 
                                             //Add the piece to the graveyard
-                                            AddPieceToGraveyard(eatenPiece);
+                                            if (CheckEatenPieceIsKing(eatenPiece))
+                                            {
+                                                //Display the killer move
+                                                HighlightKillerMove(currentPiece.GetComponent<ChessPiece>());
+                                                gameManager.CheckMate(currentPiece.GetComponent<ChessPiece>().team);
+                                                return;
+                                            }
 
+                                            AddPieceToGraveyard(eatenPiece);
                                             //Set the new position of the current piece
                                             SetPiecePosition(currentTile.transform);
+
+                                           
 
                                         }
                                         else if (currentPiece.GetComponent<ChessPiece>().team == currentTile.transform.GetChild(0).GetComponent<ChessPiece>().team)
@@ -244,6 +254,28 @@ public class BoardManager : MonoBehaviour
         pieceMap[eatenPiece.transform.GetComponent<ChessPiece>().currentX, eatenPiece.transform.GetComponent<ChessPiece>().currentY] = null;
     }
 
+    private bool CheckEatenPieceIsKing(GameObject eatenPiece)
+    {
+        if (eatenPiece.GetComponent<ChessPiece>().type == ChessPieceType.King)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private void HighlightKillerMove(ChessPiece piece)
+    {
+        var moves = piece.GetAvailableMoves(ref pieceMap, TILE_X_COUNT, TILE_Y_COUNT);
+        foreach(Vector2Int move in moves)
+        {
+            if(pieceMap[move.x, move.y].type == ChessPieceType.King)
+            {
+                tileMap[move.x, move.y].GetComponent<MeshRenderer>().material = killerMoveMaterial;
+            }
+        }
+    }
+
     private void SetPiecePosition(Transform tile)
     {
         FindObjectOfType<AudioManager>().GetMovePieceAudio();
@@ -260,7 +292,6 @@ public class BoardManager : MonoBehaviour
 
         ResetTileAfterHighlight();
         initialMaterial = tileMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY].GetComponent<MeshRenderer>().material;
-        gameManager.SwitchTurn();
 
         moveList.Add(new Vector2Int[] { prevPosition, newPosition });
         ProcessSpecialMove();
@@ -270,6 +301,7 @@ public class BoardManager : MonoBehaviour
             gameManager.CheckMate(currentPiece.GetComponent<ChessPiece>().team);
         }
 
+        gameManager.SwitchTurn();
         currentPiece = null;
     }
 
@@ -283,6 +315,14 @@ public class BoardManager : MonoBehaviour
 
             if (eatenPiece != null)
             {
+                if (CheckEatenPieceIsKing(eatenPiece))
+                {
+                    //Display the killer move
+                    HighlightKillerMove(currentPiece.GetComponent<ChessPiece>());
+                    gameManager.CheckMate(currentPiece.GetComponent<ChessPiece>().team);
+                    yield return null;
+                }
+
                 AddPieceToGraveyard(eatenPiece);
             }
 
@@ -295,16 +335,14 @@ public class BoardManager : MonoBehaviour
 
             pieceMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY] = currentPiece.GetComponent<ChessPiece>();
             currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y - 0.5f, currentPiece.transform.position.z);
-
-            gameManager.SwitchTurn();
-
             moveList.Add(new Vector2Int[] { prevPosition, newPosition });
             ProcessSpecialMove();
-
             if (CheckForCheckmate())
             {
                 gameManager.CheckMate(currentPiece.GetComponent<ChessPiece>().team);
             }
+
+            gameManager.SwitchTurn();
 
             AIChosenTile = null;
             currentPiece = null;
@@ -375,38 +413,40 @@ public class BoardManager : MonoBehaviour
 
         if(specialMove == SpecialMove.Promotion)
         {
-            var lastMove = moveList[moveList.Count - 1];
-            var targetPawn = pieceMap[lastMove[1].x, lastMove[1].y];
-
-            if(targetPawn.type == ChessPieceType.Pawn)
+            if (gameManager.gameIsActive)
             {
-                //if the target pawn is white pawn and lastmove is on the other side
-                if(targetPawn.team == 0 && lastMove[1].y == 7)
+                var lastMove = moveList[moveList.Count - 1];
+                var targetPawn = pieceMap[lastMove[1].x, lastMove[1].y];
+
+                if (targetPawn.type == ChessPieceType.Pawn)
                 {
-                    promotionPanel.SpawnPiecesButtons(0);
-                }
-                //if the target pawn is black pawn and lastmove is on the other side
-                else if (targetPawn.team == 1 && lastMove[1].y == 0)
-                {
-                    if (!gameManager.isVsAI)
+                    //if the target pawn is white pawn and lastmove is on the other side
+                    if (targetPawn.team == 0 && lastMove[1].y == 7)
                     {
-                        promotionPanel.SpawnPiecesButtons(1);
+                        promotionPanel.SpawnPiecesButtons(0);
                     }
-                    else
+                    //if the target pawn is black pawn and lastmove is on the other side
+                    else if (targetPawn.team == 1 && lastMove[1].y == 0)
                     {
-                        //If it is AI that get a promotion, pick random piece
-                        var pieces = (from piece in GetComponent<BoardGenerator>().chessPiecePrefabs
-                                           where piece.GetComponent<ChessPiece>().type != ChessPieceType.Pawn
-                                           select piece.GetComponent<ChessPiece>().type).ToList();
+                        if (!gameManager.isVsAI)
+                        {
+                            promotionPanel.SpawnPiecesButtons(1);
+                        }
+                        else
+                        {
+                            //If it is AI that get a promotion, pick random piece
+                            var pieces = (from piece in GetComponent<BoardGenerator>().chessPiecePrefabs
+                                          where piece.GetComponent<ChessPiece>().type != ChessPieceType.Pawn
+                                          select piece.GetComponent<ChessPiece>().type).ToList();
 
-                        int random = Random.Range(0, pieces.Count());
-                        GetPromotionPiece(pieces[random], 1);
+                            int random = Random.Range(0, pieces.Count());
+                            GetPromotionPiece(pieces[random], 1);
+                        }
+
                     }
-
                 }
-
-
             }
+
         }
 
         if(specialMove == SpecialMove.Castling)
