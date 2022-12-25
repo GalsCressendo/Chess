@@ -122,8 +122,6 @@ public class BoardManager : MonoBehaviour
                                             //Add the piece to the graveyard
                                             if (CheckEatenPieceIsKing(eatenPiece))
                                             {
-                                                //Display the killer move
-                                                HighlightKillerMove(currentPiece.GetComponent<ChessPiece>());
                                                 gameManager.CheckMate(currentPiece.GetComponent<ChessPiece>().team);
                                                 return;
                                             }
@@ -167,7 +165,7 @@ public class BoardManager : MonoBehaviour
                 if(currentPiece == null)
                 {
                     //Pick Up a piece
-                    currentPiece = GetAIRandomBlackPiece();
+                    currentPiece = FindObjectOfType<AI>().GetAIRandomBlackPiece(pieceMap, TILE_X_COUNT, TILE_Y_COUNT);
                     currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y + 0.5f, currentPiece.transform.position.z);
                     availableMoves = currentPiece.GetComponent<ChessPiece>().GetAvailableMoves(ref pieceMap, TILE_X_COUNT, TILE_Y_COUNT);
 
@@ -176,7 +174,7 @@ public class BoardManager : MonoBehaviour
                 {
                     if (AIChosenTile == null)
                     {
-                        AIChosenTile = GetAIChosenTile();
+                        AIChosenTile = FindObjectOfType<AI>().GetAIChosenTile(availableMoves, tileMap);
                        
                     }
                     else
@@ -264,18 +262,6 @@ public class BoardManager : MonoBehaviour
         return false;
     }
 
-    private void HighlightKillerMove(ChessPiece piece)
-    {
-        var moves = piece.GetAvailableMoves(ref pieceMap, TILE_X_COUNT, TILE_Y_COUNT);
-        foreach(Vector2Int move in moves)
-        {
-            if(pieceMap[move.x, move.y].type == ChessPieceType.King)
-            {
-                tileMap[move.x, move.y].GetComponent<MeshRenderer>().material = killerMoveMaterial;
-            }
-        }
-    }
-
     private void SetPiecePosition(Transform tile)
     {
         FindObjectOfType<AudioManager>().GetMovePieceAudio();
@@ -317,8 +303,6 @@ public class BoardManager : MonoBehaviour
             {
                 if (CheckEatenPieceIsKing(eatenPiece))
                 {
-                    //Display the killer move
-                    HighlightKillerMove(currentPiece.GetComponent<ChessPiece>());
                     gameManager.CheckMate(currentPiece.GetComponent<ChessPiece>().team);
                     yield return null;
                 }
@@ -533,47 +517,6 @@ public class BoardManager : MonoBehaviour
 
         gameManager.gameIsActive = true;
         promotionPanel.transform.parent.parent.gameObject.SetActive(false);
-    }
-
-    //AI Section
-    private GameObject GetAIRandomBlackPiece()
-    {
-        List<ChessPiece> blackPieces = new List<ChessPiece>();
-
-        for(int x = 0; x<TILE_X_COUNT; x++)
-        {
-            for(int y =0;y<TILE_Y_COUNT; y++)
-            {
-                if (pieceMap[x, y] != null && pieceMap[x, y].team == 1)
-                {
-                    if (pieceMap[x, y].GetAvailableMoves(ref pieceMap, TILE_X_COUNT, TILE_Y_COUNT).Count > 0)
-                    {
-                        blackPieces.Add(pieceMap[x, y]);
-                    }
-                }
-                
-            }
-        }
-
-        int r = Random.Range(0, blackPieces.Count);
-        return blackPieces[r].gameObject;
-    }
-
-    private GameObject GetAIChosenTile()
-    {
-        Vector2Int tile = Vector2Int.down;
-        if(availableMoves.Count > 0)
-        {
-            int r = Random.Range(0, availableMoves.Count);
-            tile = availableMoves[r];
-        }
-
-        if (tile != Vector2Int.down)
-        {
-            return tileMap[tile.x, tile.y];
-        }
-
-        return null;
     }
 
     //Prevent Check and Checkmate
