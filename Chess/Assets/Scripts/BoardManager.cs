@@ -269,7 +269,10 @@ public class BoardManager : MonoBehaviour
         var moves = piece.GetAvailableMoves(ref pieceMap, TILE_X_COUNT, TILE_Y_COUNT);
         foreach(Vector2Int move in moves)
         {
-            tileMap[move.x, move.y].GetComponent<MeshRenderer>().material = killerMoveMaterial;
+            if(pieceMap[move.x, move.y].type == ChessPieceType.King)
+            {
+                tileMap[move.x, move.y].GetComponent<MeshRenderer>().material = killerMoveMaterial;
+            }
         }
     }
 
