@@ -38,7 +38,6 @@ public class BoardManager : MonoBehaviour
     //highlighting
     public Material highlightMaterial;
     Material[,] highlight_initialMaterial;
-    public Material killerMoveMaterial;
 
     //promotion requirements
     public PromotionPanel promotionPanel;
@@ -123,7 +122,6 @@ public class BoardManager : MonoBehaviour
                                             if (CheckEatenPieceIsKing(eatenPiece))
                                             {
                                                 //Display the killer move
-                                                HighlightKillerMove(currentPiece.GetComponent<ChessPiece>());
                                                 gameManager.CheckMate(currentPiece.GetComponent<ChessPiece>().team);
                                                 return;
                                             }
@@ -264,18 +262,6 @@ public class BoardManager : MonoBehaviour
         return false;
     }
 
-    private void HighlightKillerMove(ChessPiece piece)
-    {
-        var moves = piece.GetAvailableMoves(ref pieceMap, TILE_X_COUNT, TILE_Y_COUNT);
-        foreach(Vector2Int move in moves)
-        {
-            if(pieceMap[move.x, move.y].type == ChessPieceType.King)
-            {
-                tileMap[move.x, move.y].GetComponent<MeshRenderer>().material = killerMoveMaterial;
-            }
-        }
-    }
-
     private void SetPiecePosition(Transform tile)
     {
         FindObjectOfType<AudioManager>().GetMovePieceAudio();
@@ -317,8 +303,6 @@ public class BoardManager : MonoBehaviour
             {
                 if (CheckEatenPieceIsKing(eatenPiece))
                 {
-                    //Display the killer move
-                    HighlightKillerMove(currentPiece.GetComponent<ChessPiece>());
                     gameManager.CheckMate(currentPiece.GetComponent<ChessPiece>().team);
                     yield return null;
                 }
