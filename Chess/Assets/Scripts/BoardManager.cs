@@ -49,7 +49,6 @@ public class BoardManager : MonoBehaviour
     private void Start()
     {
         pieceMap = FindObjectOfType<BoardGenerator>().chessPieces;
-        FindObjectOfType<AI>().GenerateTree(pieceMap);
         tileMap = FindObjectOfType<BoardGenerator>().board;
         gameManager = FindObjectOfType<GameManager>();
     }
@@ -161,30 +160,30 @@ public class BoardManager : MonoBehaviour
                 }
             }
             //if it is AI black turn
-            //else if(gameManager.turnState == GameManager.TurnState.BlackTurn && gameManager.isVsAI)
-            //{
-            //    if (currentPiece == null && AIChosenTile == null)
-            //    {
-            //        var aiMove = FindObjectOfType<AI>().GetAIMove(pieceMap);
-            //        currentPiece = aiMove.piece.gameObject;
-            //        AIChosenTile = tileMap[aiMove.tile.x, aiMove.tile.y];
+            else if (gameManager.turnState == GameManager.TurnState.BlackTurn && gameManager.isVsAI)
+            {
+                if (currentPiece == null && AIChosenTile == null)
+                {
+                    FindObjectOfType<AI>().Evaluate(pieceMap);
+                    currentPiece = FindObjectOfType<AI>().root.move.piece.gameObject;
+                    AIChosenTile = tileMap[FindObjectOfType<AI>().root.move.tile.x, FindObjectOfType<AI>().root.move.tile.y];
 
-            //        currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y + 0.5f, currentPiece.transform.position.z);
-            //    }
-            //    else
-            //    {
-            //        if(AIChosenTile.transform.childCount == 1)
-            //        {
-            //            GameObject eatenPiece = AIChosenTile.transform.GetChild(0).gameObject;
-            //            StartCoroutine(SetAIPiecePosition(AIChosenTile.transform, eatenPiece));
-            //        }
-            //        else
-            //        {
-            //            StartCoroutine(SetAIPiecePosition(AIChosenTile.transform, null));
-            //        }
-            //    }
-            //}
-            
+                    currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y + 0.5f, currentPiece.transform.position.z);
+                }
+                else
+                {
+                    if (AIChosenTile.transform.childCount == 1)
+                    {
+                        GameObject eatenPiece = AIChosenTile.transform.GetChild(0).gameObject;
+                        StartCoroutine(SetAIPiecePosition(AIChosenTile.transform, eatenPiece));
+                    }
+                    else
+                    {
+                        StartCoroutine(SetAIPiecePosition(AIChosenTile.transform, null));
+                    }
+                }
+            }
+
         }
 
     }

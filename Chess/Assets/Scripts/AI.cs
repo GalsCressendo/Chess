@@ -14,7 +14,8 @@ public class AI : MonoBehaviour
 
     PiecePositionPoint positionPoints = new PiecePositionPoint();
     [SerializeField] BoardManager boardManager;
-    Node root = new Node(null, null);
+    public Node root = new Node(null);
+    Dictionary<int, List<Node>> Tree = new Dictionary<int, List<Node>>();
 
     int depth = 3;
 
@@ -36,14 +37,12 @@ public class AI : MonoBehaviour
         public Move move;
         public ChessPiece[,] map;
         public int value;
-        public List<Node> children;
+        public List<Node> children = new List<Node>();
         public Node parent;
 
-        public Node(Move move, Node parent)
+        public Node(Move move)
         {
             this.move = move;
-            children = new List<Node>();
-            this.parent = parent;
         }
 
         public void AddChild(Node node)
@@ -110,20 +109,6 @@ public class AI : MonoBehaviour
     private void GenerateNextMovement(ChessPiece[,] simMap, Node target, int currentDepth)
     {
         var map = simMap;
-        if (currentDepth >= depth)
-        {
-            if (target.children.Count > 0)
-            {
-                foreach (Node child in target.children)
-                {
-                    var movement = SimulateMovement(child.move, map);
-                    child.SetValue(movement.Item2);
-                }
-            }
-
-            return;
-        }
-
         List<ChessPiece> pieces = new List<ChessPiece>();
         if (currentDepth % 2 == 0) //its white turn
         {
@@ -140,104 +125,64 @@ public class AI : MonoBehaviour
             var moves = p.GetAvailableMoves(ref map, BoardManager.TILE_X_COUNT, BoardManager.TILE_Y_COUNT);
             if (moves.Count > 0)
             {
-                var children = GenerateChildren(map, p);
-                if (children.Count > 0)
-                {
-                    foreach (Node child in children)
-                    {
-                        target.AddChild(child);
-                    }
-                }
-            }
-        }
-
-        foreach (Node child in target.children)
-        {
-            var movement = SimulateMovement(child.move, map);
-            currentDepth += 1;
-            if (currentDepth >= depth)
-            {
-                child.SetValue(movement.Item2);
-                continue;
-            }
-            GenerateNextMovement(movement.Item1, child, currentDepth);
-        }
-    }
-
-    private List<Node> GenerateInitialParents(ChessPiece[,] simMap)
-    {
-        var map = simMap;
-        List<ChessPiece> blackPieces = GetPieces(1, map);
-        List<Node> parentsNode = new List<Node>();
-
-        foreach (ChessPiece p in blackPieces)
-        {
-            var moves = p.GetAvailableMoves(ref map, BoardManager.TILE_X_COUNT, BoardManager.TILE_Y_COUNT);
-            if (moves.Count > 0)
-            {
                 foreach (Vector2Int m in moves)
                 {
-                    Node newNode = new Node(new Move(p, m), null);
-                    parentsNode.Add(newNode);
+                    Node child = GenerateChild(new Move(p, m));
+                    target.AddChild(child);
                 }
 
             }
         }
 
-        return parentsNode;
-    }
-
-    private List<Node> GenerateChildren(ChessPiece[,] map, ChessPiece piece)
-    {
-        List<Node> children = new List<Node>();
-        var moves = piece.GetAvailableMoves(ref map, BoardManager.TILE_X_COUNT, BoardManager.TILE_Y_COUNT);
-        if (moves.Count > 0)
+        foreach (Node node in target.children)
         {
-            foreach (Vector2Int m in moves)
+            Tree[currentDepth].Add(node);
+        }
+
+        if (currentDepth >= depth)
+        {
+            foreach (Node node in Tree[currentDepth])
             {
-                Node newNode = new Node(new Move(piece, m), null);
-                children.Add(newNode);
+                var movement = SimulateMovement(node.move, map);
+                node.SetValue(movement.Item2);
             }
 
         }
+        else
+        {
+            foreach (Node node in Tree[currentDepth])
+            {
+                var movement = SimulateMovement(node.move, map);
+                GenerateNextMovement(movement.Item1, node, currentDepth + 1);
+            }
+        }
 
-        return children;
     }
 
-    public void GenerateTree(ChessPiece[,] simMap)
+    private Node GenerateChild(Move move)
+    {
+        Node child = new Node(move);
+        return child;
+    }
+
+    public void Evaluate(ChessPiece[,] simMap)
     {
         var map = simMap;
-        var firstParents = GenerateInitialParents(map);
+        List<Node> roots = new List<Node>();
+        roots.Add(root);
 
-        foreach (Node node in firstParents)
+        Tree.Add(0, roots);
+
+        for (int i = 1; i <= depth; i++)
         {
-            root.AddChild(node);
+            Tree.Add(i, new List<Node>());
         }
 
         GenerateNextMovement(map, root, 1);
 
-        GetLastNodes(root);
-        //Debug.Log(string.Format("{0},{1}", root.move.piece, root.move.tile));
-    }
+        MinMaxAlgorithm(depth - 1);
 
-    private void GetLastNodes(Node target)
-    {
-        if(target.children.Count > 0)
-        {
-            foreach(Node child in target.children)
-            {
-                if(child.children.Count <= 0)
-                {
-                    Debug.Log(string.Format("{0},{1}", child.move.piece, child.move.tile));
-                }
-                else
-                {
-                    GetLastNodes(child);
-                }
-            }
-        }
-
-        
+        Debug.Log(string.Format("{0},{1}, value:{2}", root.move.piece, root.move.tile, root.value));
 
     }
 
@@ -276,6 +221,71 @@ public class AI : MonoBehaviour
         }
 
         return pieces;
+    }
+
+    private void MinMaxAlgorithm(int currentDepth)
+    {
+        List<Node> bestNode = new List<Node>();
+        foreach (Node node in Tree[currentDepth])
+        {
+            if (currentDepth % 2 == 0) //The child is black move (ai move), maximize
+            {
+                int maxValue = int.MinValue;
+                foreach (Node child in node.children)
+                {
+                    if (child.value > maxValue)
+                    {
+                        maxValue = child.value;
+                    }
+                }
+
+                bestNode = (from n in node.children
+                            where n.value == maxValue
+                            select n).ToList();
+
+            }
+            else
+            {
+                int minValue = int.MaxValue;
+                foreach (Node child in node.children)
+                {
+                    if (child.value < minValue)
+                    {
+                        minValue = child.value;
+                    }
+                }
+
+                bestNode = (from n in node.children
+                            where n.value == minValue
+                            select n).ToList();
+            }
+
+            Node chosenNode = null;
+
+            if (bestNode.Count > 1)
+            {
+                chosenNode = bestNode[UnityEngine.Random.Range(0, bestNode.Count)];
+            }
+            else if(bestNode.Count == 1)
+            {
+                chosenNode = bestNode[0];
+            }
+
+            if (chosenNode != null)
+            {
+                node.value = chosenNode.value;
+                if (node.parent != null)
+                {
+                    MinMaxAlgorithm(currentDepth - 1);
+                }
+                else
+                {
+                    node.move = chosenNode.move;
+                }
+            }
+            
+        }
+
     }
 
 
