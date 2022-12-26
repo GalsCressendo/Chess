@@ -18,7 +18,7 @@ public class BoardManager : MonoBehaviour
     Material initialMaterial;
 
     //piece movement
-    private ChessPiece[,] pieceMap;
+    public ChessPiece[,] pieceMap;
     private GameObject currentPiece;
     private List<Vector2Int> availableMoves;
     public List<Vector2Int[]> moveList = new List<Vector2Int[]>(); //To keep track of move record
@@ -49,6 +49,7 @@ public class BoardManager : MonoBehaviour
     private void Start()
     {
         pieceMap = FindObjectOfType<BoardGenerator>().chessPieces;
+        FindObjectOfType<AI>().GenerateTree(pieceMap);
         tileMap = FindObjectOfType<BoardGenerator>().board;
         gameManager = FindObjectOfType<GameManager>();
     }
@@ -160,29 +161,29 @@ public class BoardManager : MonoBehaviour
                 }
             }
             //if it is AI black turn
-            else if(gameManager.turnState == GameManager.TurnState.BlackTurn && gameManager.isVsAI)
-            {
-                if (currentPiece == null && AIChosenTile == null)
-                {
-                    var aiMove = FindObjectOfType<AI>().GetAIMove(pieceMap);
-                    currentPiece = aiMove.piece.gameObject;
-                    AIChosenTile = tileMap[aiMove.tile.x, aiMove.tile.y];
+            //else if(gameManager.turnState == GameManager.TurnState.BlackTurn && gameManager.isVsAI)
+            //{
+            //    if (currentPiece == null && AIChosenTile == null)
+            //    {
+            //        var aiMove = FindObjectOfType<AI>().GetAIMove(pieceMap);
+            //        currentPiece = aiMove.piece.gameObject;
+            //        AIChosenTile = tileMap[aiMove.tile.x, aiMove.tile.y];
 
-                    currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y + 0.5f, currentPiece.transform.position.z);
-                }
-                else
-                {
-                    if(AIChosenTile.transform.childCount == 1)
-                    {
-                        GameObject eatenPiece = AIChosenTile.transform.GetChild(0).gameObject;
-                        StartCoroutine(SetAIPiecePosition(AIChosenTile.transform, eatenPiece));
-                    }
-                    else
-                    {
-                        StartCoroutine(SetAIPiecePosition(AIChosenTile.transform, null));
-                    }
-                }
-            }
+            //        currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y + 0.5f, currentPiece.transform.position.z);
+            //    }
+            //    else
+            //    {
+            //        if(AIChosenTile.transform.childCount == 1)
+            //        {
+            //            GameObject eatenPiece = AIChosenTile.transform.GetChild(0).gameObject;
+            //            StartCoroutine(SetAIPiecePosition(AIChosenTile.transform, eatenPiece));
+            //        }
+            //        else
+            //        {
+            //            StartCoroutine(SetAIPiecePosition(AIChosenTile.transform, null));
+            //        }
+            //    }
+            //}
             
         }
 
