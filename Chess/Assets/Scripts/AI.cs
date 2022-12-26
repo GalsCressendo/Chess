@@ -49,6 +49,7 @@ public class AI : MonoBehaviour
         public void AddChild(Node node)
         {
             children.Add(node);
+            node.parent = this;
         }
 
         public void SetValue(int value)
@@ -60,6 +61,7 @@ public class AI : MonoBehaviour
         {
             this.map = map;
         }
+
     }
 
     public int GetChessPieceValue(ChessPiece p)
@@ -110,7 +112,7 @@ public class AI : MonoBehaviour
         var map = simMap;
         if (currentDepth >= depth)
         {
-            if(target.children.Count > 0)
+            if (target.children.Count > 0)
             {
                 foreach (Node child in target.children)
                 {
@@ -153,7 +155,7 @@ public class AI : MonoBehaviour
         {
             var movement = SimulateMovement(child.move, map);
             currentDepth += 1;
-            if(currentDepth >= depth)
+            if (currentDepth >= depth)
             {
                 child.SetValue(movement.Item2);
                 continue;
@@ -211,47 +213,31 @@ public class AI : MonoBehaviour
         {
             root.AddChild(node);
         }
+
         GenerateNextMovement(map, root, 1);
 
-        GetLastChildParent(root);
+        GetLastNodes(root);
+        //Debug.Log(string.Format("{0},{1}", root.move.piece, root.move.tile));
     }
 
-    private void DebugTree(Node target)
+    private void GetLastNodes(Node target)
     {
-        if (target.children.Count <= 0)
+        if(target.children.Count > 0)
         {
-            return;
-        }
-
-        if (target.children.Count > 0)
-        {
-            if (target.move != null)
+            foreach(Node child in target.children)
             {
-                Debug.Log(string.Format("{0},{1},Count: {2}", target.move.piece, target.move.tile, target.children.Count));
-            }
-
-            foreach (Node child in target.children)
-            {
-                DebugTree(child);
+                if(child.children.Count <= 0)
+                {
+                    Debug.Log(string.Format("{0},{1}", child.move.piece, child.move.tile));
+                }
+                else
+                {
+                    GetLastNodes(child);
+                }
             }
         }
 
-
-    }
-
-    private void GetLastChildParent(Node target)
-    {
-        if (target.children.Count <= 0)
-        {
-            Debug.Log(string.Format("{0},{1},Value: {2}", target.move.piece, target.move.tile, target.value));
-        }
-        else
-        {
-            foreach (Node child in target.children)
-            {
-                GetLastChildParent(child);
-            }
-        }
+        
 
     }
 
@@ -292,56 +278,6 @@ public class AI : MonoBehaviour
         return pieces;
     }
 
-    private Node MinMaxAlgorithm(List<Node> children)
-    {
-
-        List<Node> bestNodes = new List<Node>();
-        Node sample = children[0];
-        if (sample.move.piece.team == 1) //black movement
-        {
-            int maxValue = int.MinValue;
-            foreach (Node child in children)
-            {
-                if (child.value > maxValue)
-                {
-                    maxValue = child.value;
-                }
-            }
-
-            bestNodes = (from child in children
-                         where child.value == maxValue
-                         select child).ToList();
-        }
-        else
-        {
-            int minValue = int.MaxValue;
-            foreach (Node child in children)
-            {
-                if (child.value < minValue)
-                {
-                    minValue = child.value;
-                }
-            }
-
-            bestNodes = (from child in children
-                         where child.value == minValue
-                         select child).ToList();
-        }
-
-        Node selectedNode;
-        Debug.Log(bestNodes.Count);
-        if (bestNodes.Count > 1)
-        {
-            selectedNode = bestNodes[UnityEngine.Random.Range(0, bestNodes.Count)];
-        }
-        else
-        {
-            selectedNode = bestNodes[0];
-        }
-
-        return selectedNode;
-
-    }
 
 }
 
