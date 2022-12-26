@@ -160,21 +160,16 @@ public class BoardManager : MonoBehaviour
             //if it is AI black turn
             else if (gameManager.turnState == GameManager.TurnState.BlackTurn && gameManager.isVsAI)
             {
-                if (currentPiece == null)
+                if (currentPiece == null || currentPiece.GetComponent<ChessPiece>().team != 1)
                 {
                     FindObjectOfType<AI>().Evaluate(pieceMap);
                     currentPiece = FindObjectOfType<AI>().root.move.piece.gameObject;
                     currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y + 0.5f, currentPiece.transform.position.z);
-                }
-
-                if (currentTile == null)
-                {
                     currentTile = tileMap[FindObjectOfType<AI>().root.move.tile.x, FindObjectOfType<AI>().root.move.tile.y];
                 }
-
-                if(currentPiece != null && currentTile != null)
+                else
                 {
-                    StartCoroutine(SetAIPiecePosition(currentTile.transform));
+                    Invoke("SetAIPiecePosition", 0.5f);
                 }
             }
 
@@ -277,18 +272,23 @@ public class BoardManager : MonoBehaviour
 
     }
 
-    private IEnumerator SetAIPiecePosition(Transform tile)
+    private void SetAIPiecePosition()
     {
-        yield return new WaitForSeconds(0.5f);;
         if (currentPiece != null)
         {
+            if(currentPiece.transform.parent == currentTile.transform)
+            {
+                gameManager.SwitchTurn();
+                return;
+            }
+
             FindObjectOfType<AudioManager>().GetMovePieceAudio();
-            currentPiece.transform.SetParent(tile, false);
+            currentPiece.transform.SetParent(currentTile.transform, false);
             Vector2Int prevPosition = new Vector2Int(currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY);
             pieceMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY] = null;
 
-            currentPiece.GetComponent<ChessPiece>().currentX = (int)tile.transform.position.x;
-            currentPiece.GetComponent<ChessPiece>().currentY = (int)tile.transform.position.z;
+            currentPiece.GetComponent<ChessPiece>().currentX = (int)currentTile.transform.position.x;
+            currentPiece.GetComponent<ChessPiece>().currentY = (int)currentTile.transform.position.z;
             Vector2Int newPosition = new Vector2Int(currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY);
 
             pieceMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY] = currentPiece.GetComponent<ChessPiece>();
@@ -299,14 +299,14 @@ public class BoardManager : MonoBehaviour
 
             moveList.Add(new Vector2Int[] { prevPosition, newPosition });
             ProcessSpecialMove(specialMove);
+
             if (CheckForCheckmate())
             {
                 gameManager.CheckMate(currentPiece.GetComponent<ChessPiece>().team);
             }
+
             currentPiece = null;
             currentTile = null;
-
-            gameManager.SwitchTurn();
 
         }
     }
@@ -631,6 +631,11 @@ public class BoardManager : MonoBehaviour
             {
                 if (pieceMap[x, y] != null)
                 {
+                    if(targetTeam == 0)
+                    {
+                        Debug.Log(pieceMap[x, y]);
+                    }
+
                     if(pieceMap[x,y].team == targetTeam)
                     {
                         defendingPieces.Add(pieceMap[x, y]);
