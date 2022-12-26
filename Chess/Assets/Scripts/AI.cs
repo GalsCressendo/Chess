@@ -12,7 +12,6 @@ public class AI : MonoBehaviour
     private const int QUEEN_VALUE = 90;
     private const int KING_VALUE = 9000;
 
-    PiecePositionPoint positionPoints = new PiecePositionPoint();
     [SerializeField] BoardManager boardManager;
     public Node root = new Node(null);
     Dictionary<int, List<Node>> Tree = new Dictionary<int, List<Node>>();
