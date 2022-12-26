@@ -43,8 +43,6 @@ public class BoardManager : MonoBehaviour
     //promotion requirements
     public PromotionPanel promotionPanel;
 
-    //AI
-    private GameObject AIChosenTile;
 
     private void Start()
     {
@@ -162,25 +160,21 @@ public class BoardManager : MonoBehaviour
             //if it is AI black turn
             else if (gameManager.turnState == GameManager.TurnState.BlackTurn && gameManager.isVsAI)
             {
-                if (currentPiece == null && AIChosenTile == null)
+                if (currentPiece == null)
                 {
                     FindObjectOfType<AI>().Evaluate(pieceMap);
                     currentPiece = FindObjectOfType<AI>().root.move.piece.gameObject;
-                    AIChosenTile = tileMap[FindObjectOfType<AI>().root.move.tile.x, FindObjectOfType<AI>().root.move.tile.y];
-
                     currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y + 0.5f, currentPiece.transform.position.z);
                 }
-                else
+
+                if (currentTile == null)
                 {
-                    if (AIChosenTile.transform.childCount == 1)
-                    {
-                        GameObject eatenPiece = AIChosenTile.transform.GetChild(0).gameObject;
-                        StartCoroutine(SetAIPiecePosition(AIChosenTile.transform, eatenPiece));
-                    }
-                    else
-                    {
-                        StartCoroutine(SetAIPiecePosition(AIChosenTile.transform, null));
-                    }
+                    currentTile = tileMap[FindObjectOfType<AI>().root.move.tile.x, FindObjectOfType<AI>().root.move.tile.y];
+                }
+
+                if(currentPiece != null && currentTile != null)
+                {
+                    SetPiecePosition(currentTile.transform);
                 }
             }
 
@@ -279,49 +273,6 @@ public class BoardManager : MonoBehaviour
 
         gameManager.SwitchTurn();
         currentPiece = null;
-    }
-
-    private IEnumerator SetAIPiecePosition(Transform tile, GameObject eatenPiece)
-    {
-        yield return new WaitForSeconds(0.5f);
-        if (currentPiece != null)
-        {
-            FindObjectOfType<AudioManager>().GetMovePieceAudio();
-            currentPiece.transform.SetParent(tile, false);
-
-            if (eatenPiece != null)
-            {
-                if (CheckEatenPieceIsKing(eatenPiece))
-                {
-                    gameManager.CheckMate(currentPiece.GetComponent<ChessPiece>().team);
-                    yield return null;
-                }
-
-                AddPieceToGraveyard(eatenPiece);
-            }
-
-            Vector2Int prevPosition = new Vector2Int(currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY);
-            pieceMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY] = null;
-
-            currentPiece.GetComponent<ChessPiece>().currentX = (int)tile.transform.position.x;
-            currentPiece.GetComponent<ChessPiece>().currentY = (int)tile.transform.position.z;
-            Vector2Int newPosition = new Vector2Int(currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY);
-
-            pieceMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY] = currentPiece.GetComponent<ChessPiece>();
-            currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y - 0.5f, currentPiece.transform.position.z);
-            moveList.Add(new Vector2Int[] { prevPosition, newPosition });
-            ProcessSpecialMove(specialMove);
-            if (CheckForCheckmate())
-            {
-                gameManager.CheckMate(currentPiece.GetComponent<ChessPiece>().team);
-            }
-
-            gameManager.SwitchTurn();
-
-            AIChosenTile = null;
-            currentPiece = null;
-        }
-        
     }
 
     private void ResetPiecePosition()
@@ -631,6 +582,11 @@ public class BoardManager : MonoBehaviour
 
     private bool CheckForCheckmate()
     {
+        if(gameManager.isVsAI && gameManager.turnState == GameManager.TurnState.BlackTurn)
+        {
+            return false;
+        }
+
         var lastMove = moveList[moveList.Count - 1];
         int targetTeam = (pieceMap[lastMove[1].x, lastMove[1].y].team == 0 ? 1 : 0);
 
