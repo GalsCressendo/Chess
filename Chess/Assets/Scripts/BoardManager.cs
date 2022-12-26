@@ -271,9 +271,10 @@ public class BoardManager : MonoBehaviour
             gameManager.CheckMate(currentPiece.GetComponent<ChessPiece>().team);
         }
 
-        gameManager.SwitchTurn();
         currentPiece = null;
-        currentTile = null;
+
+        gameManager.SwitchTurn();
+
     }
 
     private IEnumerator SetAIPiecePosition(Transform tile)
@@ -298,15 +299,15 @@ public class BoardManager : MonoBehaviour
 
             moveList.Add(new Vector2Int[] { prevPosition, newPosition });
             ProcessSpecialMove(specialMove);
-
             if (CheckForCheckmate())
             {
                 gameManager.CheckMate(currentPiece.GetComponent<ChessPiece>().team);
             }
-
-            gameManager.SwitchTurn();
             currentPiece = null;
             currentTile = null;
+
+            gameManager.SwitchTurn();
+
         }
     }
 
@@ -656,7 +657,6 @@ public class BoardManager : MonoBehaviour
                 currentAvailableMoves.Add(pieceMoves[j]);
             }
         }
-
         //If the attacking move contains a king (are we in check right now)
         if(ContainsValidMove(ref currentAvailableMoves, new Vector2Int(targetKing.currentX, targetKing.currentY)))
         {

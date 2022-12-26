@@ -167,6 +167,7 @@ public class AI : MonoBehaviour
 
     public void Evaluate(ChessPiece[,] simMap)
     {
+        Tree = new Dictionary<int, List<Node>>();
         var map = simMap;
         List<Node> roots = new List<Node>();
         roots.Add(root);
@@ -181,8 +182,6 @@ public class AI : MonoBehaviour
         GenerateNextMovement(map, root, 1);
 
         MinMaxAlgorithm(depth - 1);
-
-        Debug.Log(string.Format("{0},{1}, value:{2}", root.move.piece, root.move.tile, root.value));
 
     }
 
