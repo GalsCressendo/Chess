@@ -17,7 +17,7 @@ public class AI : MonoBehaviour
     public Node root = new Node(null);
     Dictionary<int, List<Node>> Tree = new Dictionary<int, List<Node>>();
 
-    int depth = 3;
+    int depth = 2;
 
     public class Move
     {

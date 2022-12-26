@@ -174,7 +174,7 @@ public class BoardManager : MonoBehaviour
 
                 if(currentPiece != null && currentTile != null)
                 {
-                    SetPiecePosition(currentTile.transform);
+                    StartCoroutine(SetAIPiecePosition(currentTile.transform));
                 }
             }
 
@@ -273,6 +273,41 @@ public class BoardManager : MonoBehaviour
 
         gameManager.SwitchTurn();
         currentPiece = null;
+        currentTile = null;
+    }
+
+    private IEnumerator SetAIPiecePosition(Transform tile)
+    {
+        yield return new WaitForSeconds(0.5f);;
+        if (currentPiece != null)
+        {
+            FindObjectOfType<AudioManager>().GetMovePieceAudio();
+            currentPiece.transform.SetParent(tile, false);
+            Vector2Int prevPosition = new Vector2Int(currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY);
+            pieceMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY] = null;
+
+            currentPiece.GetComponent<ChessPiece>().currentX = (int)tile.transform.position.x;
+            currentPiece.GetComponent<ChessPiece>().currentY = (int)tile.transform.position.z;
+            Vector2Int newPosition = new Vector2Int(currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY);
+
+            pieceMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY] = currentPiece.GetComponent<ChessPiece>();
+            currentPiece.transform.position = new Vector3(currentPiece.transform.position.x, currentPiece.transform.position.y - 0.5f, currentPiece.transform.position.z);
+
+            ResetTileAfterHighlight();
+            initialMaterial = tileMap[currentPiece.GetComponent<ChessPiece>().currentX, currentPiece.GetComponent<ChessPiece>().currentY].GetComponent<MeshRenderer>().material;
+
+            moveList.Add(new Vector2Int[] { prevPosition, newPosition });
+            ProcessSpecialMove(specialMove);
+
+            if (CheckForCheckmate())
+            {
+                gameManager.CheckMate(currentPiece.GetComponent<ChessPiece>().team);
+            }
+
+            gameManager.SwitchTurn();
+            currentPiece = null;
+            currentTile = null;
+        }
     }
 
     private void ResetPiecePosition()
@@ -582,11 +617,6 @@ public class BoardManager : MonoBehaviour
 
     private bool CheckForCheckmate()
     {
-        if(gameManager.isVsAI && gameManager.turnState == GameManager.TurnState.BlackTurn)
-        {
-            return false;
-        }
-
         var lastMove = moveList[moveList.Count - 1];
         int targetTeam = (pieceMap[lastMove[1].x, lastMove[1].y].team == 0 ? 1 : 0);
 
