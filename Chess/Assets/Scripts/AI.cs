@@ -138,23 +138,16 @@ public class AI : MonoBehaviour
             Tree[currentDepth].Add(node);
         }
 
-        if (currentDepth >= depth)
+        foreach (Node node in Tree[currentDepth])
         {
-            foreach (Node node in Tree[currentDepth])
+            SimulateMovement(node, map, currentDepth);
+            if (currentDepth < depth)
             {
-                var movement = SimulateMovement(node.move, map);
-                node.SetValue(movement.Item2);
+                GenerateNextMovement(node.map, node, currentDepth+1);
             }
+        }
 
-        }
-        else
-        {
-            foreach (Node node in Tree[currentDepth])
-            {
-                var movement = SimulateMovement(node.move, map);
-                GenerateNextMovement(movement.Item1, node, currentDepth + 1);
-            }
-        }
+
 
     }
 
@@ -184,21 +177,28 @@ public class AI : MonoBehaviour
 
     }
 
-    private Tuple<ChessPiece[,], int> SimulateMovement(Move move, ChessPiece[,] originalMap)
+    private void SimulateMovement(Node node, ChessPiece[,] originalMap, int currentDepth)
     {
         var map = originalMap;
-        int value = GetChessPieceValue(move.piece);
-        if (map[move.tile.x, move.tile.y] != null)
+
+        if(currentDepth == depth)
         {
-            value -= GetChessPieceValue(map[move.tile.x, move.tile.y]);
+            int value = GetChessPieceValue(node.move.piece);
+            if (map[node.move.tile.x, node.move.tile.y] != null)
+            {
+                value -= GetChessPieceValue(map[node.move.tile.x, node.move.tile.y]);
+            }
+
+            node.SetValue(value);
         }
 
-        map[move.piece.currentX, move.piece.currentY] = null;
-        map[move.tile.x, move.tile.y] = move.piece;
-        move.piece.currentX = move.tile.x;
-        move.piece.currentY = move.tile.y;
 
-        return Tuple.Create(map, value);
+        map[node.move.piece.currentX, node.move.piece.currentY] = null;
+        map[node.move.tile.x, node.move.tile.y] = node.move.piece;
+        node.move.piece.currentX = node.move.tile.x;
+        node.move.piece.currentY = node.move.tile.y;
+
+        node.SetMap(map);
     }
 
     private List<ChessPiece> GetPieces(int team, ChessPiece[,] originalMap)
